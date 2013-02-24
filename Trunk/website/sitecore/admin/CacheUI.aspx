@@ -4,39 +4,49 @@
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head id="Head1" runat="server">
     <title></title>
-	<style>
+    <style>
 		.clear { clear:both; }
-		* { font-family:Arial; font-size:14px; color:#336699; }
-		body { background-color:#aaaaaa; }
+		* { color:#333; }
+		body { background:url("/sitecore/shell/themes/standard/gradients/gray1.gif") repeat-y scroll 50% 0 #4E4E4E; margin:0px; padding:0px; }
 		h1, h2, h3, h4 { padding: 5px; margin:5px; color:#666; font-style:normal;}
 		h1 { font-size:16px; }
-		h2 { padding:10px 10px 5px; margin:0px; background-color:#cccccc; font-size:15px; }
+		h2 { background: none repeat scroll 0 0 #D9D9D9; border-bottom: 1px solid #ccc; display:block; margin:0px;
+                border-top: 1px solid #fff; color: #555555; font: bold 8pt tahoma; padding: 1px 2px; }
 			h2 a { font-weight:normal; display:inline-block; margin-left:20px; }
 		h3 { font-size:14px; background-color:#ccc; font-weight:normal; }
 			h3 span { font-weight:normal; }
 		h4 { margin: 5px 0; color:#444; }
 			h4 span { font-size:12px; font-weight:normal; }
 		.title { font-weight:bold; color:#444; }
-		.Region { margin:10px; border-right:4px solid #ccc; border-left:4px solid #ccc; border-bottom:10px solid #ccc; }
-		.Section { background-color:#cccccc; }
+		.spacer { background:#fff; height: 15px; border-right:1px solid #333; border-left:1px solid #333; }
+		.ActiveRegion,
+		.Region { background:#F0F1F2; border-right:1px solid #333; border-left:1px solid #333; border-bottom:1px solid #333; }
+		.Region { display:none; }
+		.Section { }
 		.ButtonSection { background-color:#cccccc; }
 		.BtnClear { float:right; }
 		.GlobalSearch, .SiteCacheList, .SiteProfileList, .DBCacheList, .DBProfileList, .ARCacheList, .ARProfileList, .MiscCacheList, .MiscProfileList { position:relative; }
-		.GlobalControls { }
+		.GlobalControls { padding:10px; font:8pt tahoma; }
+			.fieldHighlight { border-left:4px solid #CCCCCC; padding-left:8px;}
+			.dataRow { margin-bottom:5px; }
+			.txtQuery { width:500px; margin-top:5px; }
+			.btnSpacer { float:left; }
+			.rowSpacer { height:15px; }
 			.GlobalControls span { display:inline-block; margin-right:20px;}
-			.GlobalControls .Section { display:block; padding:0 0 5px 10px; }
 			.GlobalSearch .ButtonSection span { display:inline-block; margin-left:30px; }
-		.CacheSiteForm, .CacheList, .ProfileList, .GlobalSearch { padding: 5px 0; margin:5px; background-color:#bbb; border: 1px solid #888888;}
+		.CacheSiteForm, .CacheList, .ProfileList, .GlobalSearch { }
 			.CacheSiteForm .Section { display:none;}
 			.CacheSiteForm a { margin:10px 0; font-size:12px; color:#000; }
 			.CacheSiteForm .Section { padding:0px 5px; background:none; } 
 		.CacheList {  }
 			.ProfileList .Section, .CacheList .Section, .ButtonSection, .GlobalSearch .Section { padding:0px 5px 5px; background:none; display:block; }
-			.Results { background-color: #AAAAAA; border: 1px solid #888888; margin-bottom: 5px; max-height: 350px; overflow: auto; padding: 0 5px;}
-			.FormRow { clear:both; }
+			.ResultTitle { margin-bottom: 5px; padding: 0 5px; }
+			.Results { background:#fff; border:2px groove #f0f0f0; margin-bottom: 5px; max-height: 350px; overflow: auto; padding: 0 5px;}
+			.FormTitleRow { clear:both; padding:0 5px 5px; }
+			.FormRow { clear:both; border-bottom:1px dashed #ccc; margin-bottom:3px; padding-bottom:3px; }
 			.RowTitle { float:left; font-weight:bold; }
 			.RowValue { float:left; }
-			.CacheName { width:290px; }
+			.CacheName { width:175px; }
 			.CacheKey {  }
 			.Name { width: 250px }
 			.Count { width: 150px }
@@ -47,9 +57,65 @@
 		.even { background-color:#bbb; }
 		.odd { background-color:#ccc; }
 		.overlay { padding-top:10px; display:none; position:absolute; top:0px; bottom:0px; right:0px; left:0px; text-align:center; background-color:#ffffff; filter:alpha(opacity=60); opacity:0.6; }
+	    /*Sitecorey styles */
+	    #EditorTabs { height: 24px; vertical-align: top;
+            background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab7.png") repeat-x scroll 0 0 #888888;
+        }
+            .activeTab { color: black; float: left; height: 24px; outline: medium none; padding: 0; text-decoration: none; white-space: nowrap; }
+            .normalTab { }
+                .tabOpen { float: left; }
+                .tabClose { height:24px; width: 21px; 
+                    background: url("http://testsite650/sitecore/shell/themes/standard/Images/Ribbon/tab3.png") no-repeat 0 0;
+                }
+                .activeTab .tabOpen { float: left; height: 24px; width: 6px;
+                    background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab0_h.png") no-repeat 0 0; }
+                
+                .tabInfo { float:left; height:24px; padding:2px 0 0; 
+                    background: url("/sitecore/shell/Themes/Standard/Images/Ribbon/tab1.png") repeat-x 0 0;    
+                }
+                .activeTab .tabInfo { 
+                    background: url("/sitecore/shell/Themes/Standard/Images/Ribbon/tab1_h.png") repeat-x 0 0;    
+                }
+                    .tabIcon { width:16px; height:16px; margin: 0 2px 0 0; vertical-align: middle; }
+                    .tabInfo span { color:#333; font:8pt tahoma; }
+                .tabClose { float:left; height:24px; width:21px; }
+                .activeTab .tabClose { background: url("http://testsite650/sitecore/shell/themes/standard/Images/Ribbon/tab2_h1.png") no-repeat 0 0 }
+            
+            .btnBox { display:inline-block; height:20px; margin:5px 0; }
+		        .btnMessage { float:left; padding: 3px 4px 3px 9px; margin:1px; }
+		        .btn { float:left; padding: 3px 4px 3px 9px; margin:1px; }
+		        .btn:hover { background: url("/sitecore/shell/themes/standard/images/Ribbon/SmallButtonActive.png") repeat-x scroll 0 0 #fffbd3; 
+                    border-style:solid; border-width:1px; border-color:#ddcf9b #d2c08e #ccc2a3; margin:0px;             
+                }
+		            .btn img { float:left; }
+		            .btn input,
+		            .btn a { color:#303030; font-family: tahoma; font-size: 8pt; border:none; background:none; 
+		                            float:left; height:14px; padding-left:20px;
+                    }
+                        .btn a.toggle { padding-right:4px; text-decoration:none; background: url('/sitecore/shell/themes/standard/Images/expand15x15.gif') no-repeat 0 0; }
+                        .btn input.searchBtn { background: url('/temp/IconCache/Applications/16x16/view.png') no-repeat 0 0; }
+		                .btn input.BtnClear { background: url('/temp/IconCache/Applications/16x16/recycle.png') no-repeat 0 0; }
+		                .btn input.clearAllBtn { background: url('/temp/IconCache/Applications/16x16/refresh.png') no-repeat 0 0; }
 	</style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript">
+        $(document).ready(function () {
+            var allTabs = ".normalTab, .activeTab";
+            $(allTabs).click(function (e) {
+                console.log("1");
+                e.preventDefault();
+                console.log("2");
+                if ($(this).attr("class").indexOf("normalTab") > -1) {
+                    console.log("3");
+                
+                    $(allTabs).attr("class", "normalTab");
+                    $(this).attr("class", "activeTab");
+                    var newRegion = $(this).attr("rel");
+                    $(".ActiveRegion").removeClass("ActiveRegion").addClass("Region");
+                    $("." + newRegion).removeClass("Region").addClass("ActiveRegion");
+                }
+            });
+        });
 		var IsSiteChecked = false;
 		function CheckAll(link, cssClass){
 			if($(link).text().indexOf("deselect") != -1){
@@ -68,7 +134,15 @@
 			$(link).parent().parent().find(where).each(function() {
 				$(this).toggle();
 			});
-		}
+        }
+        function CollapseNew(link, where) {
+            $(where).toggle();
+            var text = $(link).text();
+            var newText = (text.indexOf("Collapse") != -1)
+                ? text.split("Collapse").join("Expand")
+                : text.split("Expand").join("Collapse");
+            $(link).text(newText);
+        }
 		var OverlayObject;
 		function beginRequest(sender, args){
 			var clientId = args.get_postBackElement().id;
@@ -89,65 +163,126 @@
 			Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endRequest);
         </script>
 		<h1>Caching Manager</h1>
-		<div class="Region">
-			<h2>Global Search 
-				<a href="#" onclick="CollapseSections(this, '.GlobalSearch .Section'); return false;">Toggle Search Results</a>
-			</h2>
-			<div class="GlobalControls">
-				<asp:UpdatePanel ID="UpdatePanel1" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="Section">
-							Cache Entries: <span class="title"><asp:Literal ID="ltlEntries" runat="server"></asp:Literal></span>
-							Total Size: <span class="title"><asp:Literal ID="ltlSize" runat="server"></asp:Literal></span>
-							<asp:button ID="c_clearAll" runat="server" Text="Clear all" OnClick="c_clearAll_Click"></asp:button>
-							<div class="clear"></div>
+		<div id="EditorTabs">
+            <a class="activeTab" href="#" rel="GlobalRegion">
+                <div class="tabOpen"></div>
+                <div class="tabInfo">
+                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <span>Global Search</span>
+                </div>
+                <div class="tabClose"></div>
+            </a>
+            <a class="normalTab lastTab" href="#" rel="SiteRegion">
+                <div class="tabOpen"></div>
+                <span class="tabInfo">
+                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <span>Caches By Site</span>
+                </span>
+                <div class="tabClose"></div>
+            </a>
+            <a class="normalTab lastTab" href="#" rel="DatabaseRegion">
+                <div class="tabOpen"></div>
+                <span class="tabInfo">
+                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <span>Caches By Database</span>
+                </span>
+                <div class="tabClose"></div>
+            </a>
+            <a class="normalTab lastTab" href="#" rel="ARRegion">
+                <div class="tabOpen"></div>
+                <span class="tabInfo">
+                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <span>Access Result Caches</span>
+                </span>
+                <div class="tabClose"></div>
+            </a>
+            <a class="normalTab lastTab" href="#" rel="MiscRegion">
+                <div class="tabOpen"></div>
+                <span class="tabInfo">
+                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <span>Access Result Caches</span>
+                </span>
+                <div class="tabClose"></div>
+            </a>
+        </div>
+        <div class="spacer">&nbsp;</div>
+        <div class="ActiveRegion GlobalRegion">
+			<asp:UpdatePanel ID="upGQuery" runat="server" UpdateMode="Conditional">
+				<ContentTemplate>
+                    <h2>Cache Information</h2>
+			        <div class="GlobalControls">
+						<div class="dataRow">
+                            Total Cache Size: <span class="title"><asp:Literal ID="ltlSize" runat="server"></asp:Literal></span>
 						</div>
-						<div class="clear"></div>
-					</ContentTemplate>
-				</asp:UpdatePanel>
-			</div>
-			<div class="GlobalSearch">
-				<asp:UpdatePanel ID="upGQuery" runat="server" UpdateMode="Conditional">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:TextBox ID="txtGQuery" runat="server"></asp:TextBox>				
-							<asp:Button ID="btnGQuery" rel=".GlobalSearch" Text="Search All Cache" runat="server" OnClick="btnGQuery_Click" />
-							<span>
-								<asp:Literal ID="ltlResults" runat="server"></asp:Literal>
-							</span>
-							<asp:Button ID="btnGQueryClear" rel=".GlobalSearch" CssClass="BtnClear" Text="Clear Search Cache" runat="server" OnClick="btnGQueryClear_Click" />
+                        <div class="dataRow">
+                            Cache Entries: <span class="title"><asp:Literal ID="ltlEntries" runat="server"></asp:Literal></span>
 						</div>
-						<asp:Repeater ID="rptGQuery" runat="server">
-							<HeaderTemplate>
-								<div class="Section">
-									<div class="Results">
-										<div class="FormRow">
-											<div class="CacheName RowTitle">Cache Name</div>
-											<div class="CacheKey RowTitle">Cache Key</div>
-											<div class="clear"></div>
-										</div>
-							</HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow">
-									<div class="CacheName RowValue">
-										<%# ((System.Web.UI.WebControls.ListItem)Container.DataItem).Text %>
-									</div>
-									<div class="CacheKey RowValue">
-										<%# ((System.Web.UI.WebControls.ListItem)Container.DataItem).Value %>
-									</div>
-									<div class="clear"></div>
-								</div>
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>
-					</ContentTemplate>
-				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
-			</div>
+                        <div class="clear"></div>
+			        </div>
+                    <h2>Cache Search</h2>
+                    <div class="GlobalControls">
+                        <div class="fieldHighlight">
+                            <asp:TextBox ID="txtGQuery" CssClass="txtQuery" runat="server"></asp:TextBox>				
+						    <div class="clear"></div>
+                            <div class="btnBox">
+                                <div class="btn">
+                                    <asp:Button ID="btnGQuery" CssClass="searchBtn" rel=".GlobalSearch" Text="Search All Cache" runat="server" OnClick="btnGQuery_Click" />        
+                                </div>
+                                <div class="btnSpacer">.</div>
+                                <div class="btn">
+                                    <asp:Button ID="btnGQueryClear" rel=".GlobalSearch" CssClass="BtnClear" Text="Clear Search Results" runat="server" OnClick="btnGQueryClear_Click" />
+                                </div>
+                                <div class="btnSpacer">.</div>
+                                <div class="btn">
+                                    <asp:button ID="c_clearAll" CssClass="clearAllBtn" runat="server" Text="Clear All Cache" OnClick="c_clearAll_Click"></asp:button>
+						        </div>
+                            </div>
+                            <div class="clear"></div>    
+                        </div>
+                        <div class="rowSpacer"></div>
+                        <div class="fieldHighlight">
+                            <div class="ResultTitle">
+						        <div class="btnBox">
+                                    <div class="btn">
+                                        <a href="#" class="toggle" onclick="CollapseNew(this, '.GlobalResults'); return false;">Collapse Results</a>
+                                    </div>
+                                    <div class="btnSpacer">.</div>
+                                    <div class="btnMessage">
+                                        <asp:Literal ID="ltlResults" runat="server"></asp:Literal>
+                                    </div>
+                                </div>
+					        </div>
+                            <div class="FormTitleRow">
+								<div class="CacheName RowTitle">Cache Name</div>
+								<div class="CacheKey RowTitle">Cache Key</div>
+								<div class="clear"></div>
+							</div>
+					        <asp:Repeater ID="rptGQuery" runat="server">
+						        <HeaderTemplate>
+							        <div class="Results GlobalResults">
+						        </HeaderTemplate>
+						        <ItemTemplate>
+							        <div class="FormRow">
+								        <div class="CacheName RowValue">
+									        <%# ((System.Web.UI.WebControls.ListItem)Container.DataItem).Text %>
+								        </div>
+								        <div class="CacheKey RowValue">
+									        <%# ((System.Web.UI.WebControls.ListItem)Container.DataItem).Value %>
+								        </div>
+								        <div class="clear"></div>
+							        </div>
+						        </ItemTemplate>
+						        <FooterTemplate></div></FooterTemplate>
+					        </asp:Repeater>
+                        </div>
+                    </div>
+				</ContentTemplate>
+			</asp:UpdatePanel>
+			<div class="overlay">Loading...</div>
 			<div class="clear"></div>
 		</div>
-		<div class="Region">
-			<h2>Caches By Site 
+		<div class="Region SiteRegion">			
+            <h2>Caches By Site 
 				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
 				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
 				<a href="#" onclick="CollapseSections(this, '.ProfileList .Section'); return false;">Toggle Cache Entries</a>
@@ -258,7 +393,7 @@
 				<div class="overlay">Loading...</div>
 			</div>
 		</div>
-		<div class="Region">
+		<div class="Region DatabaseRegion">
 			<h2>Caches By Database 
 				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
 				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
@@ -358,7 +493,7 @@
 				<div class="overlay">Loading...</div>
 			</div>
 		</div>
-		<div class="Region">
+		<div class="Region ARRegion">
 			<h2>Access Result Caches 
 				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
 				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
@@ -449,7 +584,7 @@
 				<div class="overlay">Loading...</div>
 			</div>
 		</div>
-		<div class="Region">
+		<div class="Region MiscRegion">
 			<h2>Miscellaneous Caches 
 				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
 				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
