@@ -8,8 +8,8 @@
 		.clear { clear:both; }
 		* { color:#333; }
 		body { background:url("/sitecore/shell/themes/standard/gradients/gray1.gif") repeat-y scroll 50% 0 #4E4E4E; margin:0px; padding:0px; }
-		h1, h2, h3, h4 { padding: 5px; margin:5px; color:#666; font-style:normal;}
-		h1 { font-size:16px; }
+		h1, h2, h3, h4 { padding: 5px; margin:5px; color:#fff; font-style:normal; font-family:Tahoma;}
+		h1 { font-size:22px; font-family:Tahoma; font-weight:normal; }
 		h2 { background: none repeat scroll 0 0 #D9D9D9; border-bottom: 1px solid #ccc; display:block; margin:0px;
                 border-top: 1px solid #fff; color: #555555; font: bold 8pt tahoma; padding: 1px 2px; }
 			h2 a { font-weight:normal; display:inline-block; margin-left:20px; }
@@ -26,13 +26,13 @@
 		.ButtonSection { background-color:#cccccc; }
 		.BtnClear { float:right; }
 		.GlobalSearch, .SiteCacheList, .SiteProfileList, .DBCacheList, .DBProfileList, .ARCacheList, .ARProfileList, .MiscCacheList, .MiscProfileList { position:relative; }
-		.GlobalControls { padding:10px; font:8pt tahoma; }
+		.Controls { padding:10px; font:8pt tahoma; }
 			.fieldHighlight { border-left:4px solid #CCCCCC; padding-left:8px;}
 			.dataRow { margin-bottom:5px; }
 			.txtQuery { width:500px; margin-top:5px; }
 			.btnSpacer { float:left; }
 			.rowSpacer { height:15px; }
-			.GlobalControls span { display:inline-block; margin-right:20px;}
+			.Controls span { display:inline-block; margin-right:20px;}
 			.GlobalSearch .ButtonSection span { display:inline-block; margin-left:30px; }
 		.CacheSiteForm, .CacheList, .ProfileList, .GlobalSearch { }
 			.CacheSiteForm .Section { display:none;}
@@ -63,24 +63,24 @@
         }
             .activeTab { color: black; float: left; height: 24px; outline: medium none; padding: 0; text-decoration: none; white-space: nowrap; }
             .normalTab { }
-                .tabOpen { float: left; }
-                .tabClose { height:24px; width: 21px; 
-                    background: url("http://testsite650/sitecore/shell/themes/standard/Images/Ribbon/tab3.png") no-repeat 0 0;
-                }
-                .activeTab .tabOpen { float: left; height: 24px; width: 6px;
-                    background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab0_h.png") no-repeat 0 0; }
-                
+                .tabOpen { /* */ }
+				.firstTab .tabOpen { float: left; width:6px; height:24px;
+				    background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab0.png") no-repeat 0 0; }
+                .activeTab .tabOpen { background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab0_h.png") no-repeat 0 0; }
                 .tabInfo { float:left; height:24px; padding:2px 0 0; 
                     background: url("/sitecore/shell/Themes/Standard/Images/Ribbon/tab1.png") repeat-x 0 0;    
                 }
-                .activeTab .tabInfo { 
-                    background: url("/sitecore/shell/Themes/Standard/Images/Ribbon/tab1_h.png") repeat-x 0 0;    
-                }
+                .activeTab .tabInfo { background: url("/sitecore/shell/Themes/Standard/Images/Ribbon/tab1_h.png") repeat-x 0 0; }
                     .tabIcon { width:16px; height:16px; margin: 0 2px 0 0; vertical-align: middle; }
                     .tabInfo span { color:#333; font:8pt tahoma; }
-                .tabClose { float:left; height:24px; width:21px; }
-                .activeTab .tabClose { background: url("http://testsite650/sitecore/shell/themes/standard/Images/Ribbon/tab2_h1.png") no-repeat 0 0 }
-            
+                .tabClose { float:left; height:24px; width: 21px; 
+                    background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab2.png") no-repeat 0 0;
+                }
+                .activeTab .tabClose { background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab2_h1.png") no-repeat 0 0 }
+				.prevTab .tabClose { background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab2_h2.png") no-repeat 0 0 }
+				.lastTab .tabClose { background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab3.png") no-repeat 0 0 }
+				.activeTab.lastTab .tabClose { background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab3_h.png") no-repeat 0 0 }
+				
             .btnBox { display:inline-block; height:20px; margin:5px 0; }
 		        .btnMessage { float:left; padding: 3px 4px 3px 9px; margin:1px; }
 		        .btn { float:left; padding: 3px 4px 3px 9px; margin:1px; }
@@ -99,23 +99,25 @@
 	</style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript">
-        $(document).ready(function () {
-            var allTabs = ".normalTab, .activeTab";
-            $(allTabs).click(function (e) {
-                console.log("1");
-                e.preventDefault();
-                console.log("2");
-                if ($(this).attr("class").indexOf("normalTab") > -1) {
-                    console.log("3");
-                
-                    $(allTabs).attr("class", "normalTab");
-                    $(this).attr("class", "activeTab");
-                    var newRegion = $(this).attr("rel");
-                    $(".ActiveRegion").removeClass("ActiveRegion").addClass("Region");
-                    $("." + newRegion).removeClass("Region").addClass("ActiveRegion");
-                }
-            });
-        });
+    	$(document).ready(function () {
+    		var allTabs = ".normalTab, .activeTab";
+    		$(allTabs).click(function (e) {
+    			e.preventDefault();
+    			if ($(this).attr("class").indexOf("normalTab") > -1) {
+    				//sort out active and normal tabs
+    				$(".activeTab").removeClass("activeTab").addClass("normalTab");
+    				$(this).removeClass("normalTab").addClass("activeTab");
+    				//sort out prev tab
+    				$(".prevTab").removeClass("prevTab");
+    				var prev = $(this).prev();
+    				if(prev != null)
+						$(prev).addClass("prevTab");
+    				var newRegion = $(this).attr("rel");
+    				$(".ActiveRegion").removeClass("ActiveRegion").addClass("Region");
+    				$("." + newRegion).removeClass("Region").addClass("ActiveRegion");
+    			}
+    		});
+    	});
 		var IsSiteChecked = false;
 		function CheckAll(link, cssClass){
 			if($(link).text().indexOf("deselect") != -1){
@@ -164,7 +166,7 @@
         </script>
 		<h1>Caching Manager</h1>
 		<div id="EditorTabs">
-            <a class="activeTab" href="#" rel="GlobalRegion">
+            <a class="activeTab firstTab" href="#" rel="GlobalRegion">
                 <div class="tabOpen"></div>
                 <div class="tabInfo">
                     <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
@@ -172,7 +174,7 @@
                 </div>
                 <div class="tabClose"></div>
             </a>
-            <a class="normalTab lastTab" href="#" rel="SiteRegion">
+            <a class="normalTab" href="#" rel="SiteRegion">
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
                     <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
@@ -180,7 +182,7 @@
                 </span>
                 <div class="tabClose"></div>
             </a>
-            <a class="normalTab lastTab" href="#" rel="DatabaseRegion">
+            <a class="normalTab" href="#" rel="DatabaseRegion">
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
                     <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
@@ -188,7 +190,7 @@
                 </span>
                 <div class="tabClose"></div>
             </a>
-            <a class="normalTab lastTab" href="#" rel="ARRegion">
+            <a class="normalTab" href="#" rel="ARRegion">
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
                     <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
@@ -210,7 +212,7 @@
 			<asp:UpdatePanel ID="upGQuery" runat="server" UpdateMode="Conditional">
 				<ContentTemplate>
                     <h2>Cache Information</h2>
-			        <div class="GlobalControls">
+			        <div class="Controls">
 						<div class="dataRow">
                             Total Cache Size: <span class="title"><asp:Literal ID="ltlSize" runat="server"></asp:Literal></span>
 						</div>
@@ -220,7 +222,7 @@
                         <div class="clear"></div>
 			        </div>
                     <h2>Cache Search</h2>
-                    <div class="GlobalControls">
+                    <div class="Controls">
                         <div class="fieldHighlight">
                             <asp:TextBox ID="txtGQuery" CssClass="txtQuery" runat="server"></asp:TextBox>				
 						    <div class="clear"></div>
@@ -282,115 +284,141 @@
 			<div class="clear"></div>
 		</div>
 		<div class="Region SiteRegion">			
-            <h2>Caches By Site 
-				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
-				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
-				<a href="#" onclick="CollapseSections(this, '.ProfileList .Section'); return false;">Toggle Cache Entries</a>
-			</h2>
-			<div class="CacheSiteForm">
-				<div class="Section">
-					<h3>Types 
-						[ <a href="#" onclick="CheckAll(this, 'SiteTypeChecks');return false;">select all</a> ]
-						<span>(choose at least one)</span>
-					</h3>
-					<div class="SiteTypeChecks">
-						<asp:CheckBoxList ID="cblSiteTypes" RepeatColumns="6" runat="server"></asp:CheckBoxList>
-					</div>
+            <h2>Search Site Cache</h2>
+			<div class="Controls">
+				<div class="fieldHighlight">
+					<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
 				</div>
-				<div class="Section">
-					<h3>System Names 
-						[ <a href="#" onclick="CheckAll(this, 'SysChecks');return false;">select all</a> ]
-						<span>(choose at least one of either system or site name)</span>
-					</h3>
-					<div class="SysChecks">
-						<asp:CheckBoxList ID="cblSysSiteNames" RepeatColumns="6" runat="server"></asp:CheckBoxList>
+				<div class="rowSpacer"></div>
+				<div class="fieldHighlight">
+					<div class="FormTitleRow">
+						<div class="RowTitle">Type</div>
 					</div>
-					<h3>Site Names
-						[ <a href="#" onclick="CheckAll(this, 'SiteChecks');return false;">select all</a> ]
-					</h3>					
-					<div class="SiteChecks">
-						<asp:CheckBoxList ID="cblSiteNames" RepeatColumns="6" runat="server"></asp:CheckBoxList>
-					</div>
-				</div>
-			</div>
-			<div class="CacheList SiteCacheList">
-				<asp:UpdatePanel ID="UpdatePanel2" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="btnFetch" rel=".SiteCacheList" runat="server" Text="Get Summary" OnClick="FetchSiteCacheList"></asp:button>
-							<asp:button ID="btnClear" rel=".SiteCacheList" CssClass="BtnClear" runat="server" Text="Clear Summary Cache" OnClick="ClearSiteCacheList" ></asp:button>
+					<div class="clear"></div>
+					<div class="btnBox">
+						<div class="btn">
+							<a href="#" onclick="CheckAll(this, 'SiteTypeChecks');return false;">select all</a> - <span>(choose at least one)</span>
 						</div>
-						<asp:Repeater ID="rptSiteCaches" runat="server">
-							<HeaderTemplate>
-								<div class="Section">
-									<div class="Results">
-										<div class="FormRow">
-											<div class="Name RowTitle">Name</div>
-											<div class="Count RowTitle">Cache Entries</div>
-											<div class="Size RowTitle">Size</div>
-											<div class="MaxSize RowTitle">MaxSize</div>
-											<div class="clear"></div>
+					</div>
+					<asp:CheckBoxList ID="cblSiteTypes" RepeatColumns="6" runat="server"></asp:CheckBoxList>
+				</div>
+				<div class="rowSpacer"></div>
+				<div class="fieldHighlight">
+					<div class="FormTitleRow">
+						<div class="RowTitle">System Names </div>
+					</div>
+					<div class="clear"></div>
+					<div class="btnBox">
+						<div class="btn">
+							<a href="#" onclick="CheckAll(this, 'SysChecks');return false;">select all</a> - <span>(choose at least one of either system or site name)</span>
+						</div>
+					</div>
+					<asp:CheckBoxList ID="cblSysSiteNames" RepeatColumns="12" runat="server"></asp:CheckBoxList>
+				</div>
+				<div class="rowSpacer"></div>
+				<div class="fieldHighlight">
+					<div class="FormTitleRow">
+						<div class="RowTitle">Site Names</div>
+					</div>
+					<div class="clear"></div>
+					<div class="btnBox">
+						<div class="btn">
+							<a href="#" onclick="CheckAll(this, 'SiteChecks');return false;">select all</a>
+						</div>					
+					</div>
+					<asp:CheckBoxList ID="cblSiteNames" RepeatColumns="10" runat="server"></asp:CheckBoxList>
+				</div>
+				<div class="CacheList SiteCacheList">
+					<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
+					<asp:UpdatePanel ID="UpdatePanel2" UpdateMode="Conditional" runat="server">
+						<ContentTemplate>
+							<div class="ButtonSection">
+								<asp:button ID="btnFetch" rel=".SiteCacheList" runat="server" Text="Get Summary" OnClick="FetchSiteCacheList"></asp:button>
+								<asp:button ID="btnClear" rel=".SiteCacheList" CssClass="BtnClear" runat="server" Text="Clear Summary Cache" OnClick="ClearSiteCacheList" ></asp:button>
+							</div>
+							<asp:Repeater ID="rptSiteCaches" runat="server">
+								<HeaderTemplate>
+									<div class="Section">
+										<div class="Results">
+											<div class="FormRow">
+												<div class="Name RowTitle">Name</div>
+												<div class="Count RowTitle">Cache Entries</div>
+												<div class="Size RowTitle">Size</div>
+												<div class="MaxSize RowTitle">MaxSize</div>
+												<div class="clear"></div>
+											</div>
+								</HeaderTemplate>
+								<ItemTemplate>
+									<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+										<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
+										<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
+										<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
+										<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+										<div class="clear"></div>
+									</div>	
+								</ItemTemplate>
+								<FooterTemplate>
 										</div>
-							</HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
-									<div class="clear"></div>
-								</div>	
-							</ItemTemplate>
-							<FooterTemplate>
 									</div>
-								</div>
-							</FooterTemplate>
-						</asp:Repeater>
-					</ContentTemplate>
-				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
+								</FooterTemplate>
+							</asp:Repeater>
+						</ContentTemplate>
+					</asp:UpdatePanel>
+					<div class="overlay">Loading...</div>
+				</div>
 			</div>
-			<div class="ProfileList SiteProfileList">
-				<asp:UpdatePanel ID="UpdatePanel3" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="Button6" rel=".SiteProfileList" runat="server" Text="Get Cache Entries" OnClick="FetchSiteCacheProfile"></asp:button>
-							<asp:button ID="Button8" rel=".SiteProfileList" CssClass="BtnClear" runat="server" Text="Clear Cache Entries" OnClick="ClearSiteCacheProfile"></asp:button>
-						</div>
-						<asp:Repeater ID="rptSiteCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
-							<HeaderTemplate>
-								<div class="Section">
-									<div class="Results">
-							</HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow">
-									<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-										<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-										<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-										<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
-									</h4>
-									<div class="CacheItems">
-										<asp:Repeater ID="rptBySite" runat="server">
-											<HeaderTemplate>
-												<div class="FormRow">
-													<div class="CacheID RowTitle">Caching ID</div>
-													<div class="clear"></div>
-												</div>
-											</HeaderTemplate>
-											<ItemTemplate>
-												<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-													<div class="CacheID"><%# Container.DataItem %></div>
-												</div>
-											</ItemTemplate>
-										</asp:Repeater>
-									</div>
+			<h2>View All Cache Entries</h2>
+			<div class="Controls">
+				<div class="ProfileList SiteProfileList">
+					<asp:UpdatePanel ID="UpdatePanel3" UpdateMode="Conditional" runat="server">
+						<ContentTemplate>
+							<div class="btnBox">
+								<div class="btn">
+									<a href="#" onclick="CollapseSections(this, '.ProfileList .Section'); return false;">Toggle Cache Entries</a>
 								</div>
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>	
-					</ContentTemplate>
-				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
+								<div class="btnSpacer"></div>
+								<div class="btn">
+									<asp:button ID="Button6" rel=".SiteProfileList" runat="server" Text="Get Cache Entries" OnClick="FetchSiteCacheProfile"></asp:button>
+								</div>
+								<div class="btnSpacer"></div>
+									<asp:button ID="Button8" rel=".SiteProfileList" CssClass="BtnClear" runat="server" Text="Clear Cache Entries" OnClick="ClearSiteCacheProfile"></asp:button>
+								</div>
+							</div>
+							<asp:Repeater ID="rptSiteCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
+								<HeaderTemplate>
+									<div class="Section">
+										<div class="Results">
+								</HeaderTemplate>
+								<ItemTemplate>
+									<div class="FormRow">
+										<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
+											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
+											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
+											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+										</h4>
+										<div class="CacheItems">
+											<asp:Repeater ID="rptBySite" runat="server">
+												<HeaderTemplate>
+													<div class="FormRow">
+														<div class="CacheID RowTitle">Caching ID</div>
+														<div class="clear"></div>
+													</div>
+												</HeaderTemplate>
+												<ItemTemplate>
+													<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+														<div class="CacheID"><%# Container.DataItem %></div>
+													</div>
+												</ItemTemplate>
+											</asp:Repeater>
+										</div>
+									</div>
+								</ItemTemplate>
+								<FooterTemplate></div></div></FooterTemplate>
+							</asp:Repeater>	
+						</ContentTemplate>
+					</asp:UpdatePanel>
+					<div class="overlay">Loading...</div>
+				</div>
 			</div>
 		</div>
 		<div class="Region DatabaseRegion">
