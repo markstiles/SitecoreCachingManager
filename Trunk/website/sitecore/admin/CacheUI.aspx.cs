@@ -127,21 +127,13 @@ namespace sitecore.admin
 
 			List<Cache> list = GetCachesByNames(GetSelectedSiteNames());
 			ClearCaches(list);
-			rptSiteCacheProfiles.DataSource = list;
-			rptSiteCacheProfiles.DataBind();
+			rptSiteCaches.DataSource = list;
+			rptSiteCaches.DataBind();
 		}
 
 		protected void FetchSiteCacheList(object sender, EventArgs e) {
 
 			rptSiteCaches.DataSource = GetCachesByNames(GetSelectedSiteNames());
-			rptSiteCaches.DataBind();
-		}
-
-		protected void ClearSiteCacheList(object sender, EventArgs e) {
-
-			List<Cache> list = GetCachesByNames(GetSelectedSiteNames());
-			ClearCaches(list);
-			rptSiteCaches.DataSource = list;
 			rptSiteCaches.DataBind();
 		}
 
@@ -160,21 +152,13 @@ namespace sitecore.admin
 
 			List<Cache> list = GetCachesByNames(GetSelectedDBNames());
 			ClearCaches(list);
-			rptDBCacheProfiles.DataSource = list;
-			rptDBCacheProfiles.DataBind();
+			rptDBCaches.DataSource = list;
+			rptDBCaches.DataBind();
 		}
 
 		protected void FetchDBCacheList(object sender, EventArgs e) {
 
 			rptDBCaches.DataSource = GetCachesByNames(GetSelectedDBNames());
-			rptDBCaches.DataBind();
-		}
-
-		protected void ClearDBCacheList(object sender, EventArgs e) {
-
-			List<Cache> list = GetCachesByNames(GetSelectedDBNames());
-			ClearCaches(list);
-			rptDBCaches.DataSource = list;
 			rptDBCaches.DataBind();
 		}
 
@@ -193,21 +177,13 @@ namespace sitecore.admin
 
 			List<Cache> list = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
 			ClearCaches(list);
-			rptARCacheProfiles.DataSource = list;
-			rptARCacheProfiles.DataBind();
+			rptARCaches.DataSource = list;
+			rptARCaches.DataBind();
 		}
 
 		protected void FetchARCacheList(object sender, EventArgs e) {
 
 			rptARCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
-			rptARCaches.DataBind();
-		}
-
-		protected void ClearARCacheList(object sender, EventArgs e) {
-
-			List<Cache> list = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
-			ClearCaches(list);
-			rptARCaches.DataSource = list;
 			rptARCaches.DataBind();
 		}
 
@@ -226,21 +202,13 @@ namespace sitecore.admin
 
 			List<Cache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
 			ClearCaches(list);
-			rptMiscCacheProfiles.DataSource = list;
-			rptMiscCacheProfiles.DataBind();
+			rptMiscCaches.DataSource = list;
+			rptMiscCaches.DataBind();
 		}
 
 		protected void FetchMiscCacheList(object sender, EventArgs e) {
 
 			rptMiscCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
-			rptMiscCaches.DataBind();
-		}
-
-		protected void ClearMiscCacheList(object sender, EventArgs e) {
-
-			List<Cache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
-			ClearCaches(list);
-			rptMiscCaches.DataSource = list;
 			rptMiscCaches.DataBind();
 		}
 

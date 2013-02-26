@@ -20,7 +20,7 @@
 		.title { font-weight:bold; color:#444; }
 		.spacer { background:#fff; height: 15px; border-right:1px solid #333; border-left:1px solid #333; }
 		.ActiveRegion,
-		.Region { background:#F0F1F2; border-right:1px solid #333; border-left:1px solid #333; border-bottom:1px solid #333; }
+		.Region { background:#F0F1F2; border-right:1px solid #333; border-left:1px solid #333; border-bottom:1px solid #333; position:relative; }
 		.Region { display:none; }
 		.Section { }
 		.ButtonSection { background-color:#cccccc; }
@@ -30,7 +30,7 @@
 			.fieldHighlight { border-left:4px solid #CCCCCC; padding-left:8px;}
 			.dataRow { margin-bottom:5px; }
 			.txtQuery { width:500px; margin-top:5px; }
-			.btnSpacer { float:left; }
+			.btnSpacer { float:left; line-height:16px; }
 			.rowSpacer { height:15px; }
 			.Controls span { display:inline-block; margin-right:20px;}
 			.GlobalSearch .ButtonSection span { display:inline-block; margin-left:30px; }
@@ -45,6 +45,7 @@
 			.FormTitleRow { clear:both; padding:0 5px 5px; }
 			.FormRow { clear:both; border-bottom:1px dashed #ccc; margin-bottom:3px; padding-bottom:3px; }
 			.RowTitle { float:left; font-weight:bold; }
+				.Results .RowTitle { font-style:italic; }
 			.RowValue { float:left; }
 			.CacheName { width:175px; }
 			.CacheKey {  }
@@ -53,10 +54,8 @@
 			.Size { width: 150px }
 			.MaxSize { width: 150px }
 		.CacheItems { margin:0 10px 0 20px; }
-			.CacheItems .FormRow, .CacheList .FormRow, .GlobalSearch .FormRow { margin:5px 0; padding:5px; background-color:#ccc; border:1px solid #888888;}
-		.even { background-color:#bbb; }
-		.odd { background-color:#ccc; }
-		.overlay { padding-top:10px; display:none; position:absolute; top:0px; bottom:0px; right:0px; left:0px; text-align:center; background-color:#ffffff; filter:alpha(opacity=60); opacity:0.6; }
+		.overlay { padding-top:40px; display:none; position:absolute; top:0px; bottom:0px; right:0px; left:0px; text-align:center; background-color:#ffffff; filter:alpha(opacity=60); opacity:0.6; }
+			.overlay .message { position:absolute; top:40px; width:100%; color:#333; font-family:Tahoma; font-size:19px; font-weight:bold; }
 	    /*Sitecorey styles */
 	    #EditorTabs { height: 24px; vertical-align: top;
             background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab7.png") repeat-x scroll 0 0 #888888;
@@ -82,7 +81,7 @@
 				.activeTab.lastTab .tabClose { background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab3_h.png") no-repeat 0 0 }
 				
             .btnBox { display:inline-block; height:20px; margin:5px 0; }
-		        .btnMessage { float:left; padding: 3px 4px 3px 9px; margin:1px; }
+		        .btnMessage { float:left; padding:9px 0px 15px 5px; margin:1px; }
 		        .btn { float:left; padding: 3px 4px 3px 9px; margin:1px; }
 		        .btn:hover { background: url("/sitecore/shell/themes/standard/images/Ribbon/SmallButtonActive.png") repeat-x scroll 0 0 #fffbd3; 
                     border-style:solid; border-width:1px; border-color:#ddcf9b #d2c08e #ccc2a3; margin:0px;             
@@ -90,12 +89,15 @@
 		            .btn img { float:left; }
 		            .btn input,
 		            .btn a { color:#303030; font-family: tahoma; font-size: 8pt; border:none; background:none; 
-		                            float:left; height:14px; padding-left:20px;
+		                            float:left; height:15px; padding:0 0 3px 20px; 
                     }
                         .btn a.toggle { padding-right:4px; text-decoration:none; background: url('/sitecore/shell/themes/standard/Images/expand15x15.gif') no-repeat 0 0; }
                         .btn input.searchBtn { background: url('/temp/IconCache/Applications/16x16/view.png') no-repeat 0 0; }
 		                .btn input.BtnClear { background: url('/temp/IconCache/Applications/16x16/recycle.png') no-repeat 0 0; }
 		                .btn input.clearAllBtn { background: url('/temp/IconCache/Applications/16x16/refresh.png') no-repeat 0 0; }
+		                .btn a.selectAll { background: url('/temp/iconCache/Control/32x32/checkbox_b_h.png') no-repeat -5px -8px; height:17px; padding:2px 4px 0 28px; }
+		                .btn .profile { background: url('/temp/IconCache/Applications/16x16/view_add.png') no-repeat 0 0; } 
+		                .btn .summary { background: url('/temp/IconCache/Applications/16x16/view.png') no-repeat 0 0; }
 	</style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript">
@@ -110,41 +112,38 @@
     				//sort out prev tab
     				$(".prevTab").removeClass("prevTab");
     				var prev = $(this).prev();
-    				if(prev != null)
-						$(prev).addClass("prevTab");
+    				if (prev != null)
+    					$(prev).addClass("prevTab");
     				var newRegion = $(this).attr("rel");
     				$(".ActiveRegion").removeClass("ActiveRegion").addClass("Region");
     				$("." + newRegion).removeClass("Region").addClass("ActiveRegion");
     			}
     		});
+    		$('h2').dblclick(function () {
+    			$(this).next(".Controls").toggle();
+    		});
     	});
 		var IsSiteChecked = false;
-		function CheckAll(link, cssClass){
-			if($(link).text().indexOf("deselect") != -1){
-				$(link).text("select all");
+		function CheckAll(link, cssClass) {
+			var split = "";
+			var join = ""
+			if ($(link).text().indexOf("deselect") >= 0) {
+				split = "deselect";
+				join = "select";
 				IsSiteChecked = false;
 			} else {
-				$(link).text("deselect all");
+				split = "select";
+				join = "deselect";
 				IsSiteChecked = true;
 			}
-			
-			$("." + cssClass + " input:checkbox").each(function(){
+
+			var newText = $(link).text().split(split).join(join);
+			$(link).text(newText);
+
+			$("." + cssClass + " input:checkbox").each(function () {
 				$(this).attr('checked', IsSiteChecked);
 			});
 		}
-		function CollapseSections(link, where) {
-			$(link).parent().parent().find(where).each(function() {
-				$(this).toggle();
-			});
-        }
-        function CollapseNew(link, where) {
-            $(where).toggle();
-            var text = $(link).text();
-            var newText = (text.indexOf("Collapse") != -1)
-                ? text.split("Collapse").join("Expand")
-                : text.split("Expand").join("Collapse");
-            $(link).text(newText);
-        }
 		var OverlayObject;
 		function beginRequest(sender, args){
 			var clientId = args.get_postBackElement().id;
@@ -225,42 +224,34 @@
                     <div class="Controls">
                         <div class="fieldHighlight">
                             <asp:TextBox ID="txtGQuery" CssClass="txtQuery" runat="server"></asp:TextBox>				
-						    <div class="clear"></div>
-                            <div class="btnBox">
-                                <div class="btn">
-                                    <asp:Button ID="btnGQuery" CssClass="searchBtn" rel=".GlobalSearch" Text="Search All Cache" runat="server" OnClick="btnGQuery_Click" />        
-                                </div>
-                                <div class="btnSpacer">.</div>
-                                <div class="btn">
-                                    <asp:Button ID="btnGQueryClear" rel=".GlobalSearch" CssClass="BtnClear" Text="Clear Search Results" runat="server" OnClick="btnGQueryClear_Click" />
-                                </div>
-                                <div class="btnSpacer">.</div>
-                                <div class="btn">
-                                    <asp:button ID="c_clearAll" CssClass="clearAllBtn" runat="server" Text="Clear All Cache" OnClick="c_clearAll_Click"></asp:button>
-						        </div>
-                            </div>
-                            <div class="clear"></div>    
+						    <div class="clear"></div>    
                         </div>
                         <div class="rowSpacer"></div>
                         <div class="fieldHighlight">
-                            <div class="ResultTitle">
-						        <div class="btnBox">
-                                    <div class="btn">
-                                        <a href="#" class="toggle" onclick="CollapseNew(this, '.GlobalResults'); return false;">Collapse Results</a>
-                                    </div>
-                                    <div class="btnSpacer">.</div>
-                                    <div class="btnMessage">
-                                        <asp:Literal ID="ltlResults" runat="server"></asp:Literal>
-                                    </div>
+							<div class="btnBox">
+                                <div class="btn">
+                                    <asp:Button ID="btnGQuery" CssClass="searchBtn" rel=".GlobalRegion" Text="Search All Cache" runat="server" OnClick="btnGQuery_Click" />        
                                 </div>
-					        </div>
-                            <div class="FormTitleRow">
-								<div class="CacheName RowTitle">Cache Name</div>
-								<div class="CacheKey RowTitle">Cache Key</div>
-								<div class="clear"></div>
+                                <div class="btnSpacer">.</div>
+                                <div class="btn">
+                                    <asp:Button ID="btnGQueryClear" rel=".GlobalRegion" CssClass="BtnClear" Text="Clear Search Results" runat="server" OnClick="btnGQueryClear_Click" />
+                                </div>
+                                <div class="btnSpacer">.</div>
+                                <div class="btn">
+                                    <asp:button ID="c_clearAll" rel=".GlobalRegion" CssClass="clearAllBtn" runat="server" Text="Clear All Cache" OnClick="c_clearAll_Click"></asp:button>
+						        </div>
+                            </div>
+                            <div class="clear"></div>
+							<div class="btnMessage">
+								<asp:Literal ID="ltlResults" runat="server"></asp:Literal>
 							</div>
 					        <asp:Repeater ID="rptGQuery" runat="server">
 						        <HeaderTemplate>
+									<div class="FormTitleRow">
+										<div class="CacheName RowTitle">Cache Name</div>
+										<div class="CacheKey RowTitle">Cache Key</div>
+										<div class="clear"></div>
+									</div>
 							        <div class="Results GlobalResults">
 						        </HeaderTemplate>
 						        <ItemTemplate>
@@ -280,16 +271,12 @@
                     </div>
 				</ContentTemplate>
 			</asp:UpdatePanel>
-			<div class="overlay">Loading...</div>
+			<div class="overlay"><div class="message">Loading...</div></div>
 			<div class="clear"></div>
 		</div>
 		<div class="Region SiteRegion">			
-            <h2>Search Site Cache</h2>
+            <h2>Search Criteria</h2>
 			<div class="Controls">
-				<div class="fieldHighlight">
-					<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
-				</div>
-				<div class="rowSpacer"></div>
 				<div class="fieldHighlight">
 					<div class="FormTitleRow">
 						<div class="RowTitle">Type</div>
@@ -297,10 +284,12 @@
 					<div class="clear"></div>
 					<div class="btnBox">
 						<div class="btn">
-							<a href="#" onclick="CheckAll(this, 'SiteTypeChecks');return false;">select all</a> - <span>(choose at least one)</span>
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'SiteTypeChecks');return false;">select all - (choose at least one)</a>
 						</div>
 					</div>
-					<asp:CheckBoxList ID="cblSiteTypes" RepeatColumns="6" runat="server"></asp:CheckBoxList>
+					<div class="SiteTypeChecks">
+						<asp:CheckBoxList ID="cblSiteTypes" RepeatColumns="6" runat="server"></asp:CheckBoxList>
+					</div>
 				</div>
 				<div class="rowSpacer"></div>
 				<div class="fieldHighlight">
@@ -310,10 +299,12 @@
 					<div class="clear"></div>
 					<div class="btnBox">
 						<div class="btn">
-							<a href="#" onclick="CheckAll(this, 'SysChecks');return false;">select all</a> - <span>(choose at least one of either system or site name)</span>
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'SysChecks');return false;">select all - (choose at least one of either system or site name)</a>
 						</div>
 					</div>
-					<asp:CheckBoxList ID="cblSysSiteNames" RepeatColumns="12" runat="server"></asp:CheckBoxList>
+					<div class="SysChecks">
+						<asp:CheckBoxList ID="cblSysSiteNames" RepeatColumns="12" runat="server"></asp:CheckBoxList>
+					</div>
 				</div>
 				<div class="rowSpacer"></div>
 				<div class="fieldHighlight">
@@ -323,72 +314,266 @@
 					<div class="clear"></div>
 					<div class="btnBox">
 						<div class="btn">
-							<a href="#" onclick="CheckAll(this, 'SiteChecks');return false;">select all</a>
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'SiteChecks');return false;">select all</a>
 						</div>					
 					</div>
-					<asp:CheckBoxList ID="cblSiteNames" RepeatColumns="10" runat="server"></asp:CheckBoxList>
-				</div>
-				<div class="CacheList SiteCacheList">
-					<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
-					<asp:UpdatePanel ID="UpdatePanel2" UpdateMode="Conditional" runat="server">
-						<ContentTemplate>
-							<div class="ButtonSection">
-								<asp:button ID="btnFetch" rel=".SiteCacheList" runat="server" Text="Get Summary" OnClick="FetchSiteCacheList"></asp:button>
-								<asp:button ID="btnClear" rel=".SiteCacheList" CssClass="BtnClear" runat="server" Text="Clear Summary Cache" OnClick="ClearSiteCacheList" ></asp:button>
-							</div>
-							<asp:Repeater ID="rptSiteCaches" runat="server">
-								<HeaderTemplate>
-									<div class="Section">
-										<div class="Results">
-											<div class="FormRow">
-												<div class="Name RowTitle">Name</div>
-												<div class="Count RowTitle">Cache Entries</div>
-												<div class="Size RowTitle">Size</div>
-												<div class="MaxSize RowTitle">MaxSize</div>
-												<div class="clear"></div>
-											</div>
-								</HeaderTemplate>
-								<ItemTemplate>
-									<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-										<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-										<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-										<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-										<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
-										<div class="clear"></div>
-									</div>	
-								</ItemTemplate>
-								<FooterTemplate>
-										</div>
-									</div>
-								</FooterTemplate>
-							</asp:Repeater>
-						</ContentTemplate>
-					</asp:UpdatePanel>
-					<div class="overlay">Loading...</div>
+					<div class="SiteChecks">
+						<asp:CheckBoxList ID="cblSiteNames" RepeatColumns="10" runat="server"></asp:CheckBoxList>
+					</div>
 				</div>
 			</div>
-			<h2>View All Cache Entries</h2>
+			<h2>Search Results</h2>
 			<div class="Controls">
-				<div class="ProfileList SiteProfileList">
-					<asp:UpdatePanel ID="UpdatePanel3" UpdateMode="Conditional" runat="server">
-						<ContentTemplate>
+				<asp:UpdatePanel ID="UpdatePanel2" UpdateMode="Conditional" runat="server">
+					<ContentTemplate>
+						<div class="fieldHighlight">
 							<div class="btnBox">
 								<div class="btn">
-									<a href="#" onclick="CollapseSections(this, '.ProfileList .Section'); return false;">Toggle Cache Entries</a>
+									<asp:button ID="btnFetch" rel=".SiteRegion" CssClass="summary" runat="server" Text="Get Summary" OnClick="FetchSiteCacheList"></asp:button>
 								</div>
-								<div class="btnSpacer"></div>
+								<div class="btnSpacer">.</div>
 								<div class="btn">
-									<asp:button ID="Button6" rel=".SiteProfileList" runat="server" Text="Get Cache Entries" OnClick="FetchSiteCacheProfile"></asp:button>
+									<asp:button ID="Button6" rel=".SiteRegion" CssClass="profile" runat="server" Text="Get Cache Entries" OnClick="FetchSiteCacheProfile"></asp:button>
 								</div>
-								<div class="btnSpacer"></div>
-									<asp:button ID="Button8" rel=".SiteProfileList" CssClass="BtnClear" runat="server" Text="Clear Cache Entries" OnClick="ClearSiteCacheProfile"></asp:button>
+								<div class="btnSpacer">.</div>
+								<div class="btn">
+									<asp:button ID="Button8" rel=".SiteRegion" CssClass="BtnClear" runat="server" Text="Clear Cache Entries" OnClick="ClearSiteCacheProfile"></asp:button>
 								</div>
 							</div>
-							<asp:Repeater ID="rptSiteCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
-								<HeaderTemplate>
-									<div class="Section">
+							<div class="CacheList SiteCacheList">
+								<asp:Repeater ID="rptSiteCaches" runat="server">
+									<HeaderTemplate>
+										<div class="FormTitleRow">
+											<div class="Name RowTitle">Name</div>
+											<div class="Count RowTitle">Cache Entries</div>
+											<div class="Size RowTitle">Size</div>
+											<div class="MaxSize RowTitle">MaxSize</div>
+											<div class="clear"></div>
+										</div>
 										<div class="Results">
-								</HeaderTemplate>
+									</HeaderTemplate>
+									<ItemTemplate>
+										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+											<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+											<div class="clear"></div>
+										</div>	
+									</ItemTemplate>
+									<FooterTemplate>
+										</div>
+									</FooterTemplate>
+								</asp:Repeater>
+							</div>
+							<div class="ProfileList SiteProfileList">
+								<asp:Repeater ID="rptSiteCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
+									<HeaderTemplate>
+										<div class="Results">
+									</HeaderTemplate>
+									<ItemTemplate>
+										<div class="FormRow">
+											<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+											</h4>
+											<div class="CacheItems">
+												<asp:Repeater ID="rptBySite" runat="server">
+													<HeaderTemplate>
+														<div class="FormRow">
+															<div class="CacheID RowTitle">Cache ID</div>
+															<div class="clear"></div>
+														</div>
+													</HeaderTemplate>
+													<ItemTemplate>
+														<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+															<div class="CacheID"><%# Container.DataItem %></div>
+														</div>
+													</ItemTemplate>
+												</asp:Repeater>
+											</div>
+										</div>
+									</ItemTemplate>
+									<FooterTemplate></div></FooterTemplate>
+								</asp:Repeater>	
+							</div>
+						</div>
+					</ContentTemplate>
+				</asp:UpdatePanel>
+				<div class="overlay"><div class="message">Loading...</div></div>	
+			</div>
+		</div>
+		<div class="Region DatabaseRegion">
+			<h2>Search Criteria</h2>
+			<div class="Controls">
+				<div class="fieldHighlight">
+					<div class="FormTitleRow"><div class="RowTitle">Types</div></div>
+					<div class="clear"></div>
+					<div class="btnBox">
+						<div class="btn">
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'DBTypeChecks');return false;">select all (choose at least one)</a>
+						</div>
+					</div>
+					<div class="DBTypeChecks">
+						<asp:CheckBoxList ID="cblDBTypes" RepeatColumns="6" runat="server"></asp:CheckBoxList>
+					</div>
+				</div>
+				<div class="rowSpacer"></div>
+				<div class="fieldHighlight">
+					<div class="FormTitleRow"><div class="RowTitle">Database Names</div></div>
+					<div class="clear"></div>
+					<div class="btnBox">
+						<div class="btn">
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'DBChecks');return false;">select all (choose at least one of either system or site name)</a>
+						</div>
+					</div>
+					<div class="DBChecks">
+						<asp:CheckBoxList ID="cblDBNames" RepeatColumns="6" runat="server"></asp:CheckBoxList>
+					</div>
+				</div>
+			</div>
+			<h2>Search Results</h2>
+			<div class="Controls">
+				<asp:UpdatePanel ID="UpdatePanel4" UpdateMode="Conditional" runat="server">
+					<ContentTemplate>
+						<div class="fieldHighlight">
+							<div class="btnBox">
+								<div class="btn">
+									<asp:button ID="Button1" rel=".DatabaseRegion" class="summary" runat="server" Text="Get Summary" OnClick="FetchDBCacheList"></asp:button>
+								</div>
+								<div class="btnSpacer">.</div>
+								<div class="btn">
+									<asp:button ID="Button5" rel=".DatabaseRegion" class="profile" runat="server" Text="Get Cache Entries" OnClick="FetchDBCacheProfile"></asp:button>
+								</div>
+								<div class="btnSpacer">.</div>
+								<div class="btn">
+									<asp:button ID="Button10" rel=".DatabaseRegion" runat="server" CssClass="BtnClear" Text="Clear Cache Entries" OnClick="ClearDBCacheProfile"></asp:button>
+								</div>
+							</div>
+							<div class="CacheList DBCacheList">
+								<asp:Repeater ID="rptDBCaches" runat="server">
+									<HeaderTemplate>
+										<div class="FormTitleRow">
+											<div class="Name RowTitle">Name</div>
+											<div class="Count RowTitle">Cache Entries</div>
+											<div class="Size RowTitle">Size</div>
+											<div class="MaxSize RowTitle">MaxSize</div>
+											<div class="clear"></div>
+										</div>
+										<div class="Results">
+									</HeaderTemplate>
+									<ItemTemplate>
+										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+											<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+											<div class="clear"></div>
+										</div>
+									</ItemTemplate>
+									<FooterTemplate></div></FooterTemplate>
+								</asp:Repeater>
+							</div>
+							<div class="ProfileList DBProfileList">
+								<asp:Repeater ID="rptDBCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
+									<HeaderTemplate><div class="Results"></HeaderTemplate>
+									<ItemTemplate>
+										<div class="FormRow">
+											<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+											</h4>
+											<div class="CacheItems">
+												<asp:Repeater ID="rptBySite" runat="server">
+													<HeaderTemplate>
+														<div class="FormRow">
+															<div class="CacheID RowTitle">Caching ID</div>
+															<div class="clear"></div>
+														</div>
+													</HeaderTemplate>
+													<ItemTemplate>
+														<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+															<div class="CacheID"><%# Container.DataItem %></div>
+														</div>
+													</ItemTemplate>
+												</asp:Repeater>
+											</div>
+										</div>
+									</ItemTemplate>
+									<FooterTemplate></div></FooterTemplate>
+								</asp:Repeater>
+							</div>
+						</div>
+					</ContentTemplate>
+				</asp:UpdatePanel>
+				<div class="overlay"><div class="message">Loading...</div></div>
+			</div>
+		</div>
+		<div class="Region ARRegion">
+			<h2>Search Criteria</h2>
+			<div class="Controls">
+				<div class="fieldHighlight">
+					<div class="FormTitleRow"><div class="RowTitle">Cache Names</div></div>
+					<div class="clear"></div>
+					<div class="btnBox">
+						<div class="btn"> 
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'MiscChecks');return false;">select all (choose at least one)</a>						
+						</div>
+					</div>
+					<div class="MiscChecks">
+						<asp:CheckBoxList ID="cblAccessResult" RepeatColumns="6" runat="server"></asp:CheckBoxList>
+					</div>
+				</div>
+			</div>
+			<h2>Search Results</h2>
+			<div class="Controls">
+				<asp:UpdatePanel ID="UpdatePanel64" UpdateMode="Conditional" runat="server">
+					<ContentTemplate>
+						<div class="fieldHighlight">
+							<div class="btnBox">
+								<div class="btn">
+									<asp:button ID="Button2" rel=".ARRegion" class="summary" runat="server" Text="Get Summary" OnClick="FetchARCacheList"></asp:button>
+								</div>
+								<div class="btnSpacer">.</div>
+								<div class="btn">
+									<asp:button ID="Button7" rel=".ARRegion" class="profile" runat="server" Text="Get Cache Entries" OnClick="FetchARCacheProfile"></asp:button>
+								</div>
+								<div class="btnSpacer">.</div>
+								<div class="btn">
+									<asp:button ID="Button11" rel=".ARRegion" runat="server" CssClass="BtnClear" Text="Clear Cache Entries" OnClick="ClearARCacheProfile"></asp:button>
+								</div>
+								<div class="btnSpacer"></div>
+							</div>
+						</div>
+						<div class="CacheList ARCacheList">	
+							<asp:Repeater ID="rptARCaches" runat="server">
+							<HeaderTemplate>
+								<div class="FormTitleRow">
+									<div class="Name RowTitle">Name</div>
+									<div class="Count RowTitle">Cache Entries</div>
+									<div class="Size RowTitle">Size</div>
+									<div class="MaxSize RowTitle">MaxSize</div>
+									<div class="clear"></div>
+								</div>
+								<div class="Results">
+							</HeaderTemplate>
+							<ItemTemplate>
+								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+									<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
+									<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
+									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
+									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+									<div class="clear"></div>
+								</div>	
+							</ItemTemplate>
+							<FooterTemplate></div></FooterTemplate>
+						</asp:Repeater>
+						</div>
+						<div class="ProfileList ARProfileList">
+							<asp:Repeater ID="rptARCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
+								<HeaderTemplate><div class="Results"></HeaderTemplate>
 								<ItemTemplate>
 									<div class="FormRow">
 										<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
@@ -413,294 +598,106 @@
 										</div>
 									</div>
 								</ItemTemplate>
-								<FooterTemplate></div></div></FooterTemplate>
-							</asp:Repeater>	
-						</ContentTemplate>
-					</asp:UpdatePanel>
-					<div class="overlay">Loading...</div>
-				</div>
-			</div>
-		</div>
-		<div class="Region DatabaseRegion">
-			<h2>Caches By Database 
-				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
-				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
-				<a href="#" onclick="CollapseSections(this, '.ProfileList .Section'); return false;">Toggle Cache Entries</a>
-			</h2>
-			<div class="CacheSiteForm">
-				<div class="Section">
-					<h3>Types 
-						[ <a href="#" onclick="CheckAll(this, 'DBTypeChecks');return false;">select all</a> ]
-						<span>(choose at least one)</span>
-					</h3>
-					<div class="DBTypeChecks">
-						<asp:CheckBoxList ID="cblDBTypes" RepeatColumns="6" runat="server"></asp:CheckBoxList>
-					</div>
-				</div>
-				<div class="Section">
-					<h3>Database Names 
-						[ <a href="#" onclick="CheckAll(this, 'DBChecks');return false;">select all</a> ]
-						<span>(choose at least one of either system or site name)</span>
-					</h3>
-					<div class="DBChecks">
-						<asp:CheckBoxList ID="cblDBNames" RepeatColumns="6" runat="server"></asp:CheckBoxList>
-					</div>
-				</div>
-			</div>
-			<div class="CacheList DBCacheList">
-				<asp:UpdatePanel ID="UpdatePanel4" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="Button1" rel=".DBCacheList" runat="server" Text="Get Summary" OnClick="FetchDBCacheList"></asp:button>
-							<asp:button ID="Button9" rel=".DBCacheList" runat="server" CssClass="BtnClear" Text="Clear Summary Cache" OnClick="ClearDBCacheList"></asp:button>
+								<FooterTemplate></div></FooterTemplate>
+							</asp:Repeater>
 						</div>
-						<asp:Repeater ID="rptDBCaches" runat="server">
-							<HeaderTemplate>
-								<div class="Section">
-								<div class="Results">
-								<div class="FormRow">
-									<div class="Name RowTitle">Name</div>
-									<div class="Count RowTitle">Cache Entries</div>
-									<div class="Size RowTitle">Size</div>
-									<div class="MaxSize RowTitle">MaxSize</div>
-									<div class="clear"></div>
-								</div>
-							</HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
-									<div class="clear"></div>
-								</div>
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>
 					</ContentTemplate>
 				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
-			</div>
-			<div class="ProfileList DBProfileList">
-				<asp:UpdatePanel ID="UpdatePanel5" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="Button5" rel=".DBProfileList" runat="server" Text="Get Cache Entries" OnClick="FetchDBCacheProfile"></asp:button>
-							<asp:button ID="Button10" rel=".DBProfileList" runat="server" CssClass="BtnClear" Text="Clear Cache Entries" OnClick="ClearDBCacheProfile"></asp:button>
-						</div>
-						<asp:Repeater ID="rptDBCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
-							<HeaderTemplate><div class="Section"><div class="Results"></HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow">
-									<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-										<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-										<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-										<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
-									</h4>
-									<div class="CacheItems">
-										<asp:Repeater ID="rptBySite" runat="server">
-											<HeaderTemplate>
-												<div class="FormRow">
-													<div class="CacheID RowTitle">Caching ID</div>
-													<div class="clear"></div>
-												</div>
-											</HeaderTemplate>
-											<ItemTemplate>
-												<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-													<div class="CacheID"><%# Container.DataItem %></div>
-												</div>
-											</ItemTemplate>
-										</asp:Repeater>
-									</div>
-								</div>
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>
-					</ContentTemplate>
-				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
-			</div>
-		</div>
-		<div class="Region ARRegion">
-			<h2>Access Result Caches 
-				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
-				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
-				<a href="#" onclick="CollapseSections(this, '.ProfileList .Section'); return false;">Toggle Cache Entries</a>
-			</h2>
-			<div class="CacheSiteForm">
-				<div class="Section">
-					<h3>Cache Names 
-						[ <a href="#" onclick="CheckAll(this, 'MiscChecks');return false;">select all</a> ]
-						<span>(choose at least one)</span>
-					</h3>
-					<div class="MiscChecks">
-						<asp:CheckBoxList ID="cblAccessResult" RepeatColumns="6" runat="server"></asp:CheckBoxList>
-					</div>
-				</div>
-			</div>
-			<div class="CacheList ARCacheList">
-				<asp:UpdatePanel ID="UpdatePanel64" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="Button2" rel=".ARCacheList" runat="server" Text="Get Summary" OnClick="FetchARCacheList"></asp:button>
-							<asp:button ID="Button11" rel=".ARCacheList" runat="server" CssClass="BtnClear" Text="Clear Summary" OnClick="ClearARCacheList"></asp:button>
-						</div>
-						<asp:Repeater ID="rptARCaches" runat="server">
-							<HeaderTemplate>
-								<div class="Section">
-								<div class="Results">
-								<div class="FormRow">
-									<div class="Name RowTitle">Name</div>
-									<div class="Count RowTitle">Cache Entries</div>
-									<div class="Size RowTitle">Size</div>
-									<div class="MaxSize RowTitle">MaxSize</div>
-									<div class="clear"></div>
-								</div>
-							</HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
-									<div class="clear"></div>
-								</div>	
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>
-					</ContentTemplate>
-				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
-			</div>
-			<div class="ProfileList ARProfileList">
-				<asp:UpdatePanel ID="UpdatePanel74" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="Button7" rel=".ARProfileList" runat="server" Text="Get Cache Entries" OnClick="FetchARCacheProfile"></asp:button>
-							<asp:button ID="Button12" rel=".ARProfileList" runat="server" CssClass="BtnClear" Text="Clear Cache Entries" OnClick="ClearARCacheProfile"></asp:button>
-						</div>
-						<asp:Repeater ID="rptARCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
-							<HeaderTemplate><div class="Section"><div class="Results"></HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow">
-									<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-										<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-										<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-										<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
-									</h4>
-									<div class="CacheItems">
-										<asp:Repeater ID="rptBySite" runat="server">
-											<HeaderTemplate>
-												<div class="FormRow">
-													<div class="CacheID RowTitle">Caching ID</div>
-													<div class="clear"></div>
-												</div>
-											</HeaderTemplate>
-											<ItemTemplate>
-												<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-													<div class="CacheID"><%# Container.DataItem %></div>
-												</div>
-											</ItemTemplate>
-										</asp:Repeater>
-									</div>
-								</div>
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>
-					</ContentTemplate>
-				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
+				<div class="overlay"><div class="message">Loading...</div></div>
 			</div>
 		</div>
 		<div class="Region MiscRegion">
-			<h2>Miscellaneous Caches 
-				<a href="#" onclick="CollapseSections(this, '.CacheSiteForm .Section'); return false;">Toggle Form</a>
-				<a href="#" onclick="CollapseSections(this, '.CacheList .Section'); return false;">Toggle Summary</a>
-				<a href="#" onclick="CollapseSections(this, '.ProfileList .Section'); return false;">Toggle Cache Entries</a>
-			</h2>
-			<div class="CacheSiteForm">
-				<div class="Section">
-					<h3>Cache Names 
-						[ <a href="#" onclick="CheckAll(this, 'MiscChecks');return false;">select all</a> ]
-						<span>(choose at least one)</span>
-					</h3>
+			<h2>Search Criteria</h2>
+			<div class="Controls">
+				<div class="fieldHighlight">
+					<div class="FormTitleRow"><div class="RowTitle">Cache Names</div></div>
+					<div class="clear"></div>
+					<div class="btnBox">
+						<div class="btn">
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'MiscChecks');return false;">select all (choose at least one)</a> 
+						</div>
+					</div>
 					<div class="MiscChecks">
 						<asp:CheckBoxList ID="cblMiscNames" RepeatColumns="6" runat="server"></asp:CheckBoxList>
 					</div>
 				</div>
 			</div>
-			<div class="CacheList MiscCacheList">
+			<h2>Search Results</h2>
+			<div class="Controls">
 				<asp:UpdatePanel ID="UpdatePanel6" UpdateMode="Conditional" runat="server">
 					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="Button3" rel=".MiscCacheList" runat="server" Text="Get Summary" OnClick="FetchMiscCacheList"></asp:button>
-							<asp:button ID="Button14" rel=".MiscCacheList" runat="server" CssClass="BtnClear" Text="Clear Summary" OnClick="ClearMiscCacheList"></asp:button>
-						</div>
-						<asp:Repeater ID="rptMiscCaches" runat="server">
-							<HeaderTemplate>
-								<div class="Section">
-								<div class="Results">
-								<div class="FormRow">
-									<div class="Name RowTitle">Name</div>
-									<div class="Count RowTitle">Cache Entries</div>
-									<div class="Size RowTitle">Size</div>
-									<div class="MaxSize RowTitle">MaxSize</div>
-									<div class="clear"></div>
+						<div class="fieldHighlight">
+							<div class="btnBox">
+								<div class="btn">
+									<asp:button ID="Button3" rel=".MiscRegion" class="summary" runat="server" Text="Get Summary" OnClick="FetchMiscCacheList"></asp:button>
 								</div>
-							</HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
-									<div class="clear"></div>
-								</div>	
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>
+								<div class="btnSpacer">.</div>
+								<div class="btn">
+									<asp:button ID="Button4" rel=".MiscRegion" class="profile" runat="server" Text="Get Cache Entries" OnClick="FetchMiscCacheProfile"></asp:button>
+								</div>
+								<div class="btnSpacer">.</div>
+								<div class="btn">
+									<asp:button ID="Button13" rel=".MiscRegion" runat="server" CssClass="BtnClear" Text="Clear Cache Entries" OnClick="ClearMiscCacheProfile"></asp:button>
+								</div>
+							</div>
+							<div class="CacheList MiscCacheList">
+								<asp:Repeater ID="rptMiscCaches" runat="server">
+									<HeaderTemplate>
+										<div class="FormTitleRow">
+											<div class="Name RowTitle">Name</div>
+											<div class="Count RowTitle">Cache Entries</div>
+											<div class="Size RowTitle">Size</div>
+											<div class="MaxSize RowTitle">MaxSize</div>
+											<div class="clear"></div>
+										</div>
+										<div class="Results">
+									</HeaderTemplate>
+									<ItemTemplate>
+										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+											<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+											<div class="clear"></div>
+										</div>	
+									</ItemTemplate>
+									<FooterTemplate></div></FooterTemplate>
+								</asp:Repeater>
+							</div>
+							<div class="ProfileList MiscProfileList">
+								<asp:Repeater ID="rptMiscCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
+									<HeaderTemplate><div class="Results"></HeaderTemplate>
+									<ItemTemplate>
+										<div class="FormRow">
+											<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+											</h4>
+											<div class="CacheItems">
+												<asp:Repeater ID="rptBySite" runat="server">
+													<HeaderTemplate>
+														<div class="FormRow">
+															<div class="CacheID RowTitle">Caching ID</div>
+															<div class="clear"></div>
+														</div>
+													</HeaderTemplate>
+													<ItemTemplate>
+														<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
+															<div class="CacheID"><%# Container.DataItem %></div>
+														</div>
+													</ItemTemplate>
+												</asp:Repeater>
+											</div>
+										</div>
+									</ItemTemplate>
+									<FooterTemplate></div></FooterTemplate>
+								</asp:Repeater>
+							</div>
+						</div>
 					</ContentTemplate>
 				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
-			</div>
-			<div class="ProfileList MiscProfileList">
-				<asp:UpdatePanel ID="UpdatePanel7" UpdateMode="Conditional" runat="server">
-					<ContentTemplate>
-						<div class="ButtonSection">
-							<asp:button ID="Button4" rel=".MiscProfileList" runat="server" Text="Get Cache Entries" OnClick="FetchMiscCacheProfile"></asp:button>
-							<asp:button ID="Button13" rel=".MiscProfileList" runat="server" CssClass="BtnClear" Text="Clear Cache Entries" OnClick="ClearMiscCacheProfile"></asp:button>
-						</div>
-						<asp:Repeater ID="rptMiscCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
-							<HeaderTemplate><div class="Section"><div class="Results"></HeaderTemplate>
-							<ItemTemplate>
-								<div class="FormRow">
-									<h4><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-										<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-										<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-										<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
-									</h4>
-									<div class="CacheItems">
-										<asp:Repeater ID="rptBySite" runat="server">
-											<HeaderTemplate>
-												<div class="FormRow">
-													<div class="CacheID RowTitle">Caching ID</div>
-													<div class="clear"></div>
-												</div>
-											</HeaderTemplate>
-											<ItemTemplate>
-												<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-													<div class="CacheID"><%# Container.DataItem %></div>
-												</div>
-											</ItemTemplate>
-										</asp:Repeater>
-									</div>
-								</div>
-							</ItemTemplate>
-							<FooterTemplate></div></div></FooterTemplate>
-						</asp:Repeater>
-					</ContentTemplate>
-				</asp:UpdatePanel>
-				<div class="overlay">Loading...</div>
+				<div class="overlay"><div class="message">Loading...</div></div>
 			</div>
 		</div>
     </form>
