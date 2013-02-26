@@ -1,5 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="CacheUI.aspx.cs" Inherits="sitecore.admin.CacheUI" %>
-
+<%@ Import Namespace="Sitecore.Data.Managers"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head id="Head1" runat="server">
@@ -66,12 +66,13 @@
 				.firstTab .tabOpen { float: left; width:6px; height:24px;
 				    background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab0.png") no-repeat 0 0; }
                 .activeTab .tabOpen { background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab0_h.png") no-repeat 0 0; }
-                .tabInfo { float:left; height:24px; padding:2px 0 0; 
+                .tabInfo { float:left; height:24px; padding:4px 0 0; 
                     background: url("/sitecore/shell/Themes/Standard/Images/Ribbon/tab1.png") repeat-x 0 0;    
                 }
                 .activeTab .tabInfo { background: url("/sitecore/shell/Themes/Standard/Images/Ribbon/tab1_h.png") repeat-x 0 0; }
                     .tabIcon { width:16px; height:16px; margin: 0 2px 0 0; vertical-align: middle; }
                     .tabInfo span { color:#333; font:8pt tahoma; }
+                    .tabInfo img { padding-right:5px; float:left; display:inline-block; }
                 .tabClose { float:left; height:24px; width: 21px; 
                     background: url("/sitecore/shell/themes/standard/Images/Ribbon/tab2.png") no-repeat 0 0;
                 }
@@ -91,13 +92,14 @@
 		            .btn a { color:#303030; font-family: tahoma; font-size: 8pt; border:none; background:none; 
 		                            float:left; height:15px; padding:0 0 3px 20px; 
                     }
-                        .btn a.toggle { padding-right:4px; text-decoration:none; background: url('/sitecore/shell/themes/standard/Images/expand15x15.gif') no-repeat 0 0; }
-                        .btn input.searchBtn { background: url('/temp/IconCache/Applications/16x16/view.png') no-repeat 0 0; }
-		                .btn input.BtnClear { background: url('/temp/IconCache/Applications/16x16/recycle.png') no-repeat 0 0; }
-		                .btn input.clearAllBtn { background: url('/temp/IconCache/Applications/16x16/refresh.png') no-repeat 0 0; }
-		                .btn a.selectAll { background: url('/temp/iconCache/Control/32x32/checkbox_b_h.png') no-repeat -5px -8px; height:17px; padding:2px 4px 0 28px; }
-		                .btn .profile { background: url('/temp/IconCache/Applications/16x16/view_add.png') no-repeat 0 0; } 
-		                .btn .summary { background: url('/temp/IconCache/Applications/16x16/view.png') no-repeat 0 0; }
+                        
+						.btn a.toggle { padding-right:4px; text-decoration:none; background: url('/sitecore/shell/themes/standard/Images/expand15x15.gif') no-repeat 0 0; }
+                        <%= SearchBtn %>
+		                <%= BtnClear %>
+		                <%= ClearAll %>
+		                <%= SelectAll %>
+		                <%= ProfileBtn %>
+		                <%= Summary %>
 	</style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
     <script type="text/javascript">
@@ -123,44 +125,44 @@
     			$(this).next(".Controls").toggle();
     		});
     	});
-		var IsSiteChecked = false;
-		function CheckAll(link, cssClass) {
-			var split = "";
-			var join = ""
-			if ($(link).text().indexOf("deselect") >= 0) {
-				split = "deselect";
-				join = "select";
-				IsSiteChecked = false;
-			} else {
-				split = "select";
-				join = "deselect";
-				IsSiteChecked = true;
-			}
+    	var IsSiteChecked = false;
+    	function CheckAll(link, cssClass) {
+    		var split = "";
+    		var join = ""
+    		if ($(link).text().indexOf("deselect") >= 0) {
+    			split = "deselect";
+    			join = "select";
+    			IsSiteChecked = false;
+    		} else {
+    			split = "select";
+    			join = "deselect";
+    			IsSiteChecked = true;
+    		}
 
-			var newText = $(link).text().split(split).join(join);
-			$(link).text(newText);
+    		var newText = $(link).text().split(split).join(join);
+    		$(link).text(newText);
 
-			$("." + cssClass + " input:checkbox").each(function () {
-				$(this).attr('checked', IsSiteChecked);
-			});
-		}
-		var OverlayObject;
-		function beginRequest(sender, args){
-			var clientId = args.get_postBackElement().id;
-			var wrapper = $("#" + clientId).attr("rel");
-			OverlayObject = $(wrapper).find(".overlay");
-			$(OverlayObject).css("display", "block");
-		}
-		function endRequest(sender, args) {			
-			$(OverlayObject).css("display", "none");
-		}
+    		$("." + cssClass + " input:checkbox").each(function () {
+    			$(this).attr('checked', IsSiteChecked);
+    		});
+    	}
+    	var OverlayObject;
+    	function beginRequest(sender, args) {
+    		var clientId = args.get_postBackElement().id;
+    		var wrapper = $("#" + clientId).attr("rel");
+    		OverlayObject = $(wrapper).find(".overlay");
+    		$(OverlayObject).css("display", "block");
+    	}
+    	function endRequest(sender, args) {
+    		$(OverlayObject).css("display", "none");
+    	}
     </script>
 </head>
 <body>
     <form id="form1" defaultbutton="btnGQuery" runat="server">
 		<asp:ScriptManager ID="scriptManager" runat="server"></asp:ScriptManager>
 		<script type="text/javascript" language="javascript">
-            Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(beginRequest);
+			Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(beginRequest);
 			Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endRequest);
         </script>
 		<h1>Caching Manager</h1>
@@ -168,7 +170,7 @@
             <a class="activeTab firstTab" href="#" rel="GlobalRegion">
                 <div class="tabOpen"></div>
                 <div class="tabInfo">
-                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <asp:Image runat="server" ID="imgGlobal" />
                     <span>Global Search</span>
                 </div>
                 <div class="tabClose"></div>
@@ -176,7 +178,7 @@
             <a class="normalTab" href="#" rel="SiteRegion">
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
-                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <asp:Image runat="server" ID="imgSite" />
                     <span>Caches By Site</span>
                 </span>
                 <div class="tabClose"></div>
@@ -184,7 +186,7 @@
             <a class="normalTab" href="#" rel="DatabaseRegion">
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
-                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <asp:Image runat="server" ID="imgDB" />
                     <span>Caches By Database</span>
                 </span>
                 <div class="tabClose"></div>
@@ -192,7 +194,7 @@
             <a class="normalTab" href="#" rel="ARRegion">
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
-                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <asp:Image runat="server" ID="imgAR" />
                     <span>Access Result Caches</span>
                 </span>
                 <div class="tabClose"></div>
@@ -200,7 +202,7 @@
             <a class="normalTab lastTab" href="#" rel="MiscRegion">
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
-                    <img class="tabIcon" src="/temp/IconCache/People/16x16/cube_blue.png">
+                    <asp:Image runat="server" ID="imgMisc" />
                     <span>Access Result Caches</span>
                 </span>
                 <div class="tabClose"></div>

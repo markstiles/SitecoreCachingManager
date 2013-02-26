@@ -16,6 +16,11 @@ using Sitecore.Caching;
 using Sitecore.Web;
 using Sitecore;
 using Sitecore.Configuration;
+using System.Text;
+using Sitecore.Data.Managers;
+using System.Text.RegularExpressions;
+using HtmlAgilityPack;
+using System.Xml.XPath;
 
 namespace sitecore.admin
 {
@@ -37,15 +42,45 @@ namespace sitecore.admin
 		List<string> SiteCacheTypes;
 		List<string> DBCacheTypes;
 
+		//images
+		public string SearchBtn = string.Empty;
+		public string BtnClear = string.Empty;
+		public string ClearAll = string.Empty;
+		public string SelectAll = string.Empty;
+		public string ProfileBtn = string.Empty;
+		public string Summary = string.Empty;
+
 		//Page Load Events
 		protected override void OnInit(EventArgs e) {
 			Assert.ArgumentNotNull(e, "e");
 			base.OnInit(e);
 		}
 
+		public string GetIcon(string iconPath, int width, int height) {
+			
+			HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+			htmlDoc.LoadHtml(ThemeManager.GetImage(iconPath, width, height));
+			HtmlNode img = htmlDoc.DocumentNode.FirstChild;
+			return img.Attributes["src"].Value;
+		}
+
 		private void Page_Load(object sender, EventArgs e) {
 
+			SearchBtn = string.Format(".btn input.searchBtn {{ background: url('{0}') no-repeat 0 0; }}", GetIcon("Applications/16x16/view.png", 16, 16));
+			BtnClear = string.Format(".btn input.BtnClear {{ background: url('{0}') no-repeat 0 0; }}", GetIcon("Applications/16x16/recycle.png", 16, 16));
+			ClearAll = string.Format(".btn input.clearAllBtn {{ background: url('{0}') no-repeat 0 0; }}", GetIcon("Applications/16x16/refresh.png", 16, 16));
+			SelectAll = string.Format(".btn a.selectAll {{ background: url('{0}') no-repeat -5px -8px; height:17px; padding:2px 4px 0 28px; }}", GetIcon("Control/32x32/checkbox_b_h.png", 32, 32));
+			ProfileBtn = string.Format(".btn .profile {{ background: url('{0}') no-repeat 0 0; }} ", GetIcon("Applications/16x16/view_add.png", 16, 16));
+			Summary = string.Format(".btn .summary {{ background: url('{0}') no-repeat 0 0; }}", GetIcon("Applications/16x16/view.png", 16, 16));
+
+			imgGlobal.ImageUrl = GetIcon("Network/16x16/earth.png", 16, 16);
+			imgSite.ImageUrl = GetIcon("Network/32x32/environment.png", 16, 16);
+			imgDB.ImageUrl = GetIcon("Business/32x32/data_view.png", 16, 16);
+			imgAR.ImageUrl = GetIcon("Network/32x32/lock.png", 16, 16);
+			imgMisc.ImageUrl = GetIcon("People/16x16/cube_blue.png", 16, 16);
+			
 			if (!IsPostBack) {
+
 				//site types
 				SiteCacheTypes = new List<string>() { "[html]", "[xsl]", "[viewstate]", "[registry]", "[filtered items]" };
 				foreach (string t in SiteCacheTypes) {

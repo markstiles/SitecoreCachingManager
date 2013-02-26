@@ -4,7 +4,7 @@
 //     Runtime Version:2.0.50727.4952
 //
 //     Changes to this file may cause incorrect behavior and will be lost if
-//     the code is regenerated.
+//     the code is regenerated. 
 // </auto-generated>
 //------------------------------------------------------------------------------
 
@@ -41,22 +41,58 @@ namespace sitecore.admin {
         protected global::System.Web.UI.ScriptManager scriptManager;
         
         /// <summary>
-        /// UpdatePanel1 control.
+        /// imgGlobal control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel1;
+        protected global::System.Web.UI.WebControls.Image imgGlobal;
         
         /// <summary>
-        /// ltlEntries control.
+        /// imgSite control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal ltlEntries;
+        protected global::System.Web.UI.WebControls.Image imgSite;
+        
+        /// <summary>
+        /// imgDB control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgDB;
+        
+        /// <summary>
+        /// imgAR control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgAR;
+        
+        /// <summary>
+        /// imgMisc control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgMisc;
+        
+        /// <summary>
+        /// upGQuery control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel upGQuery;
         
         /// <summary>
         /// ltlSize control.
@@ -68,22 +104,13 @@ namespace sitecore.admin {
         protected global::System.Web.UI.WebControls.Literal ltlSize;
         
         /// <summary>
-        /// c_clearAll control.
+        /// ltlEntries control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button c_clearAll;
-        
-        /// <summary>
-        /// upGQuery control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel upGQuery;
+        protected global::System.Web.UI.WebControls.Literal ltlEntries;
         
         /// <summary>
         /// txtGQuery control.
@@ -104,15 +131,6 @@ namespace sitecore.admin {
         protected global::System.Web.UI.WebControls.Button btnGQuery;
         
         /// <summary>
-        /// ltlResults control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal ltlResults;
-        
-        /// <summary>
         /// btnGQueryClear control.
         /// </summary>
         /// <remarks>
@@ -120,6 +138,24 @@ namespace sitecore.admin {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnGQueryClear;
+        
+        /// <summary>
+        /// c_clearAll control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button c_clearAll;
+        
+        /// <summary>
+        /// ltlResults control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal ltlResults;
         
         /// <summary>
         /// rptGQuery control.
@@ -176,33 +212,6 @@ namespace sitecore.admin {
         protected global::System.Web.UI.WebControls.Button btnFetch;
         
         /// <summary>
-        /// btnClear control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClear;
-        
-        /// <summary>
-        /// rptSiteCaches control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptSiteCaches;
-        
-        /// <summary>
-        /// UpdatePanel3 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel3;
-        
-        /// <summary>
         /// Button6 control.
         /// </summary>
         /// <remarks>
@@ -219,6 +228,15 @@ namespace sitecore.admin {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button Button8;
+        
+        /// <summary>
+        /// rptSiteCaches control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptSiteCaches;
         
         /// <summary>
         /// rptSiteCacheProfiles control.
@@ -266,33 +284,6 @@ namespace sitecore.admin {
         protected global::System.Web.UI.WebControls.Button Button1;
         
         /// <summary>
-        /// Button9 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Button9;
-        
-        /// <summary>
-        /// rptDBCaches control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptDBCaches;
-        
-        /// <summary>
-        /// UpdatePanel5 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel5;
-        
-        /// <summary>
         /// Button5 control.
         /// </summary>
         /// <remarks>
@@ -309,6 +300,15 @@ namespace sitecore.admin {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button Button10;
+        
+        /// <summary>
+        /// rptDBCaches control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptDBCaches;
         
         /// <summary>
         /// rptDBCacheProfiles control.
@@ -347,6 +347,15 @@ namespace sitecore.admin {
         protected global::System.Web.UI.WebControls.Button Button2;
         
         /// <summary>
+        /// Button7 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button Button7;
+        
+        /// <summary>
         /// Button11 control.
         /// </summary>
         /// <remarks>
@@ -363,33 +372,6 @@ namespace sitecore.admin {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Repeater rptARCaches;
-        
-        /// <summary>
-        /// UpdatePanel74 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel74;
-        
-        /// <summary>
-        /// Button7 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Button7;
-        
-        /// <summary>
-        /// Button12 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Button12;
         
         /// <summary>
         /// rptARCacheProfiles control.
@@ -428,33 +410,6 @@ namespace sitecore.admin {
         protected global::System.Web.UI.WebControls.Button Button3;
         
         /// <summary>
-        /// Button14 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button Button14;
-        
-        /// <summary>
-        /// rptMiscCaches control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptMiscCaches;
-        
-        /// <summary>
-        /// UpdatePanel7 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.UpdatePanel UpdatePanel7;
-        
-        /// <summary>
         /// Button4 control.
         /// </summary>
         /// <remarks>
@@ -471,6 +426,15 @@ namespace sitecore.admin {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button Button13;
+        
+        /// <summary>
+        /// rptMiscCaches control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptMiscCaches;
         
         /// <summary>
         /// rptMiscCacheProfiles control.
