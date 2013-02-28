@@ -595,7 +595,7 @@
                 <div class="tabOpen"></div>
                 <span class="tabInfo">
                     <asp:Image runat="server" ID="imgMisc" />
-                    <span>Access Result Caches</span>
+                    <span>Miscellaneous Caches</span>
                 </span>
                 <div class="tabClose"></div>
             </a>
