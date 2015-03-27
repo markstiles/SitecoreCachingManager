@@ -819,10 +819,10 @@
 					<div class="clear"></div>
 					<div class="btnBox">
 						<div class="btn"> 
-							<a href="#" class="selectAll" onclick="CheckAll(this, 'MiscChecks');return false;">Select all (choose at least one)</a>						
+							<a href="#" class="selectAll" onclick="CheckAll(this, 'ARChecks');return false;">Select all (choose at least one)</a>						
 						</div>
 					</div>
-					<div class="MiscChecks">
+					<div class="ARChecks">
 						<asp:CheckBoxList ID="cblAccessResult" RepeatColumns="6" runat="server"></asp:CheckBoxList>
 					</div>
 				</div>
@@ -917,7 +917,7 @@
 							<a href="#" class="selectAll" onclick="CheckAll(this, 'ProvChecks');return false;">Select all (choose at least one)</a>						
 						</div>
 					</div>
-					<div class="MiscChecks">
+					<div class="ProvChecks">
 						<asp:CheckBoxList ID="cblProviderResult" RepeatColumns="6" runat="server"></asp:CheckBoxList>
 					</div>
 				</div>
