@@ -85,7 +85,7 @@
 
     protected void ClearSiteCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.Cache> list = GetCachesByNames(GetSelectedSiteNames());
+        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedSiteNames());
         ClearCaches(list);
         rptSiteCaches.DataSource = list;
         rptSiteCaches.DataBind();
@@ -109,7 +109,7 @@
 
     protected void ClearDBCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.Cache> list = GetCachesByNames(GetSelectedDBNames());
+        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedDBNames());
         ClearCaches(list);
         rptDBCaches.DataSource = list;
         rptDBCaches.DataBind();
@@ -133,7 +133,7 @@
 
     protected void ClearARCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.Cache> list = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
+        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
         ClearCaches(list);
         rptARCaches.DataSource = list;
         rptARCaches.DataBind();
@@ -157,7 +157,7 @@
 
     protected void ClearProvCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.Cache> list = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items));
+        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items));
         ClearCaches(list);
         rptProvCaches.DataSource = list;
         rptProvCaches.DataBind();
@@ -181,7 +181,7 @@
 
     protected void ClearMiscCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.Cache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
+        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
         ClearCaches(list);
         rptMiscCaches.DataSource = list;
         rptMiscCaches.DataBind();
@@ -199,10 +199,10 @@
 
     protected void btnGQuery_Click(object sender, EventArgs e) {
         List<ListItem> qr = new List<ListItem>();
-        IEnumerable<Sitecore.Caching.Cache> allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
+        IEnumerable<Sitecore.Caching.ICacheInfo> allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
 
         string query = txtGQuery.Text.ToLower();
-        foreach (Sitecore.Caching.Cache c in allCaches) {
+        foreach (Sitecore.Caching.ICache c in allCaches) {
             try {
                 foreach (string s in c.GetCacheKeys()) {
                     if (s.ToLower().Contains(query)) {
@@ -221,7 +221,7 @@
         var allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
 
         string query = txtGQuery.Text.ToLower();
-        foreach (Sitecore.Caching.Cache c in allCaches) {
+        foreach (Sitecore.Caching.ICache c in allCaches) {
             try {
                 foreach (string s in c.GetCacheKeys()) {
                     if (s.ToLower().Contains(query)) {
@@ -238,7 +238,7 @@
     }
 
     protected void ClearAll_Click(object sender, EventArgs e) {
-        foreach (Sitecore.Caching.Cache cache in CacheManager.GetAllCaches()) {
+        foreach (Sitecore.Caching.ICache cache in CacheManager.GetAllCaches()) {
             cache.Clear();
         }
         UpdateTotals();
@@ -255,15 +255,15 @@
 
     protected void rptSCProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
         Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
-        Sitecore.Caching.Cache cacheItem = (Sitecore.Caching.Cache)e.Item.DataItem;
+        Sitecore.Caching.ICache cacheItem = (Sitecore.Caching.ICache)e.Item.DataItem;
         if (rptBySite == null)
             return;
         rptBySite.DataSource = cacheItem.GetCacheKeys();
         rptBySite.DataBind();
     }
 
-    protected void ClearCaches(List<Sitecore.Caching.Cache> caches) {
-        foreach (Sitecore.Caching.Cache c in caches) {
+    protected void ClearCaches(List<Sitecore.Caching.ICache> caches) {
+        foreach (Sitecore.Caching.ICache c in caches) {
             c.Clear();
         }
     }
@@ -281,7 +281,7 @@
         }
 
         //get selected sites caches
-        List<Sitecore.Caching.Cache> allCaches = new List<Sitecore.Caching.Cache>();
+        List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
         List<string> list = GetSelectedItemValues(cblSiteNames.Items);
         list.AddRange(GetSelectedItemValues(cblSysSiteNames.Items));
         foreach (string li in list) {
@@ -306,7 +306,7 @@
         }
 
         //get selected sites caches
-        List<Sitecore.Caching.Cache> allCaches = new List<Sitecore.Caching.Cache>();
+        List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
         List<string> list = GetSelectedItemValues(cblDBNames.Items);
         foreach (string li in list) {
             foreach (string s in siteTypesSelected) {
@@ -317,11 +317,11 @@
         return returnNames;
     }
 
-    protected List<Sitecore.Caching.Cache> GetCachesByNames(List<string> names) {
+    protected List<Sitecore.Caching.ICache> GetCachesByNames(List<string> names) {
 
-        List<Sitecore.Caching.Cache> returnCaches = new List<Sitecore.Caching.Cache>();
+        List<Sitecore.Caching.ICache> returnCaches = new List<Sitecore.Caching.ICache>();
         foreach (string s in names) {
-            Sitecore.Caching.Cache c = CacheManager.FindCacheByName(s);
+            Sitecore.Caching.ICache c = CacheManager.FindCacheByName(s);
             if (c != null) {
                 returnCaches.Add(c);
             }
@@ -654,10 +654,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-											<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-											<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+											<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
 											<div class="clear"></div>
 										</div>	
 									</ItemTemplate>
@@ -673,10 +673,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow">
-											<h3><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+											<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
 											</h4>
 											<div class="CacheItems">
 												<asp:Repeater ID="rptBySite" runat="server">
@@ -765,10 +765,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-											<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-											<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+											<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
 											<div class="clear"></div>
 										</div>
 									</ItemTemplate>
@@ -780,10 +780,10 @@
 									<HeaderTemplate><div class="Results"></HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow">
-											<h3><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+											<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
 											</h4>
 											<div class="CacheItems">
 												<asp:Repeater ID="rptBySite" runat="server">
@@ -861,10 +861,10 @@
 							</HeaderTemplate>
 							<ItemTemplate>
 								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+									<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
+									<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
+									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
+									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
 									<div class="clear"></div>
 								</div>	
 							</ItemTemplate>
@@ -876,10 +876,10 @@
 								<HeaderTemplate><div class="Results"></HeaderTemplate>
 								<ItemTemplate>
 									<div class="FormRow">
-										<h3><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+										<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
+											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
+											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
+											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
 										</h4>
 										<div class="CacheItems">
 											<asp:Repeater ID="rptBySite" runat="server">
@@ -956,10 +956,10 @@
 							</HeaderTemplate>
 							<ItemTemplate>
 								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+									<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
+									<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
+									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
+									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
 									<div class="clear"></div>
 								</div>	
 							</ItemTemplate>
@@ -971,10 +971,10 @@
 								<HeaderTemplate><div class="Results"></HeaderTemplate>
 								<ItemTemplate>
 									<div class="FormRow">
-										<h3><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+										<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
+											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
+											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
+											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
 										</h4>
 										<div class="CacheItems">
 											<asp:Repeater ID="rptBySite" runat="server">
@@ -1049,10 +1049,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-											<div class="Name RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %></div>
-											<div class="Count RowValue"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></div>
-											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></div>
-											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></div>
+											<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
 											<div class="clear"></div>
 										</div>	
 									</ItemTemplate>
@@ -1064,10 +1064,10 @@
 									<HeaderTemplate><div class="Results"></HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow">
-											<h3><%# ((Sitecore.Caching.Cache)Container.DataItem).Name %> - 
-												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Cache)Container.DataItem).Count %></span>
-												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).Size) %></span>
-												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Cache)Container.DataItem).MaxSize) %></span>
+											<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
 											</h4>
 											<div class="CacheItems">
 												<asp:Repeater ID="rptBySite" runat="server">
