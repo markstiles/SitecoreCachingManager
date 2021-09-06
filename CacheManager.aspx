@@ -5,15 +5,17 @@
 <%@ Import Namespace="Sitecore.Configuration"%>
 <%@ Import Namespace="Sitecore.Diagnostics"%>
 <%@ Import Namespace="Sitecore.sitecore.admin"%>
+<%@ Import Namespace="Sitecore.Abstractions"%>
 <%@ Import Namespace="System"%>
 <%@ Import Namespace="System.Collections"%>
 <%@ Import Namespace="System.Collections.Generic"%>
 <%@ Import Namespace="System.Linq"%>
 <%@ Import Namespace="System.Web.UI.WebControls"%>
 
+
 <script runat="server">
     #region Admin Page 
-        
+
     private bool IsDeveloper {
         get {
             if (!this.User.IsInRole("sitecore\\developer"))
@@ -35,11 +37,11 @@
             return;
         this.Response.Redirect(string.Format("{0}?returnUrl={1}", (object)site.LoginPage, (object)HttpUtility.UrlEncode(this.Request.Url.PathAndQuery)));
     }
-        
+
     #endregion Admin Page 
 
     #region Page Events
-    
+
     protected override void OnInit(EventArgs arguments) {
         Assert.ArgumentNotNull((object)arguments, "arguments");
         this.CheckSecurity(true);
@@ -56,9 +58,9 @@
         List<string> SystemSiteNames = new List<string>() { "admin", "login", "modules_shell", "modules_website", "publisher", "scheduler", "service", "shell", "system", "website" };
         SetupChecklist(cblSysSiteNames, SystemSiteNames);
         //site names
-        SetupChecklist(cblSiteNames, Factory.GetSiteNames().Where(a => !SystemSiteNames.Contains(a)).OrderBy(a => a).ToList());
+        SetupChecklist(cblSiteNames, SiteContextFactory.GetSiteNames().ToList());
         //site types
-        SetupChecklist(cblSiteTypes, new List<string>() { "[filtered items]", "[html]", "[registry]", "[viewstate]", "[xsl]" });
+        SetupChecklist(cblSiteTypes, new List<string>() { "[filtered items]", "[html]", "[partial html]","[registry]", "[viewstate]", "[xsl]" });
         //db types			
         SetupChecklist(cblDBTypes, new List<string>() { "[blobIDs]", "[data]", "[items]", "[itempaths]", "[paths]", "[standardValues]" });
         //db names
@@ -202,9 +204,10 @@
         IEnumerable<Sitecore.Caching.ICacheInfo> allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
 
         string query = txtGQuery.Text.ToLower();
-        foreach (Sitecore.Caching.ICache c in allCaches) {
+        foreach (Sitecore.Caching.ICacheInfo c in allCaches) {
             try {
-                foreach (string s in c.GetCacheKeys()) {
+				var cc = Sitecore.Caching.CacheManager.FindCacheByName<string>(c.Name) as ICache;
+                foreach (string s in cc.GetCacheKeys()) {
                     if (s.ToLower().Contains(query)) {
                         qr.Add(new ListItem(c.Name, s));
                     }
@@ -320,8 +323,8 @@
     protected List<Sitecore.Caching.ICache> GetCachesByNames(List<string> names) {
 
         List<Sitecore.Caching.ICache> returnCaches = new List<Sitecore.Caching.ICache>();
-        foreach (string s in names) {
-            Sitecore.Caching.ICache c = CacheManager.FindCacheByName(s);
+        foreach (string s in names) {	
+            Sitecore.Caching.ICache c = Sitecore.Caching.CacheManager.FindCacheByName<string>(s) as ICache;
             if (c != null) {
                 returnCaches.Add(c);
             }
@@ -429,7 +432,7 @@
                     .btn input:hover,
                     .btn a:hover { text-decoration:underline; }
 	</style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/sitecore/shell/client/Speak/Assets/lib/ui/2.0/deps/jquery-2.1.1.min.js"></script>
     <script type="text/javascript">
     	$(document).ready(function () {
     		var allTabs = ".normalTab, .activeTab";
@@ -494,8 +497,8 @@
     <form id="form1" defaultbutton="btnGQuery" runat="server">
 		<asp:ScriptManager ID="scriptManager" runat="server"></asp:ScriptManager>
 		<script type="text/javascript" language="javascript">
-			Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(beginRequest);
-			Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endRequest);
+            Sys.WebForms.PageRequestManager.getInstance().add_beginRequest(beginRequest);
+            Sys.WebForms.PageRequestManager.getInstance().add_endRequest(endRequest);
         </script>
 		<h1>Caching Manager</h1>
 		<div id="EditorTabs">
