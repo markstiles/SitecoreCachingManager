@@ -129,24 +129,29 @@
 
     protected void FetchARCacheProfile(object sender, EventArgs e) {
 
-        rptARCacheProfiles.DataSource = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
+        rptARCacheProfiles.DataSource = GetACCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
         rptARCacheProfiles.DataBind();
     }
 
     protected void ClearARCacheProfile(object sender, EventArgs e) {
-
-        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
-        ClearCaches(list);
-        rptARCaches.DataSource = list;
+		var ac = Sitecore.Caching.CacheManager.GetAccessResultCache();
+		ac.Clear();
+        rptARCaches.DataSource = GetACCachesByNames(GetSelectedItemValues(cblAccessResult.Items));;
         rptARCaches.DataBind();
     }
 
     protected void FetchARCacheList(object sender, EventArgs e) {
 
-        rptARCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
+        rptARCaches.DataSource = GetACCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
         rptARCaches.DataBind();
     }
 
+	protected List<Sitecore.Caching.Generics.ICache<AccessResultCacheKey>> GetACCachesByNames(List<string> names) {
+		var ac = Sitecore.Caching.CacheManager.GetAccessResultCache();
+        List<Sitecore.Caching.Generics.ICache<AccessResultCacheKey>> returnCaches = new List<Sitecore.Caching.Generics.ICache<AccessResultCacheKey>>();
+        returnCaches.Add(ac.InnerCache);
+        return returnCaches;
+    }
     #endregion Access Result
 
     #region Providers
@@ -259,6 +264,15 @@
     protected void rptSCProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
         Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
         Sitecore.Caching.ICache cacheItem = (Sitecore.Caching.ICache)e.Item.DataItem;
+        if (rptBySite == null)
+            return;
+        rptBySite.DataSource = cacheItem.GetCacheKeys();
+        rptBySite.DataBind();
+    }
+
+	protected void rptSCACProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
+        Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
+        Sitecore.Caching.Generics.Cache<AccessResultCacheKey> cacheItem = (Sitecore.Caching.Generics.Cache<AccessResultCacheKey>)e.Item.DataItem;
         if (rptBySite == null)
             return;
         rptBySite.DataSource = cacheItem.GetCacheKeys();
@@ -864,10 +878,10 @@
 							</HeaderTemplate>
 							<ItemTemplate>
 								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
+									<div class="Name RowValue"><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Name %></div>
+									<div class="Count RowValue"><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Count %></div>
+									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Size) %></div>
+									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).MaxSize) %></div>
 									<div class="clear"></div>
 								</div>	
 							</ItemTemplate>
@@ -875,15 +889,15 @@
 						</asp:Repeater>
 						</div>
 						<div class="ProfileList ARProfileList">
-							<asp:Repeater ID="rptARCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
+							<asp:Repeater ID="rptARCacheProfiles" OnItemDataBound="rptSCACProfiles_DataBound" runat="server">
 								<HeaderTemplate><div class="Results"></HeaderTemplate>
 								<ItemTemplate>
 									<div class="FormRow">
-										<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
-											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
-											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
-											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
-										</h4>
+										<h3><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Name %> - 
+											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Count %></span>
+											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Size) %></span>
+											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).MaxSize) %></span>
+										</h3>
 										<div class="CacheItems">
 											<asp:Repeater ID="rptBySite" runat="server">
 												<HeaderTemplate>
@@ -894,7 +908,7 @@
 												</HeaderTemplate>
 												<ItemTemplate>
 													<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-														<div class="CacheID"><%# Container.DataItem %></div>
+														<div class="CacheID"><%# ((AccessResultCacheKey)Container.DataItem).EntityId %></div>
 													</div>
 												</ItemTemplate>
 											</asp:Repeater>
