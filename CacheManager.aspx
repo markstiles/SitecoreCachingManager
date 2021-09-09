@@ -474,7 +474,7 @@
                     }
                 }
             }
-            else if (s == "ExperienceAnalytics.DimensionItems" || s == "DeviceDictionaryCache" || s == "GeoIpDataDictionaryCache")
+            else if (s == "ExperienceAnalytics.DimensionItems" || s == "DeviceDictionaryCache" || s == "GeoIpDataDictionaryCache" || s == "LocationsDictionaryCache")
             {
                 var dc = Sitecore.Caching.CacheManager.FindCacheByName<System.Guid>(s);
                 if (dc != null)
