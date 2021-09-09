@@ -60,17 +60,38 @@
         //site names
         SetupChecklist(cblSiteNames, SiteContextFactory.GetSiteNames().ToList());
         //site types
-        SetupChecklist(cblSiteTypes, new List<string>() { "[filtered items]", "[html]", "[partial html]","[registry]", "[viewstate]", "[xsl]" });
+        SetupChecklist(cblSiteTypes, new List<string>() { "[filtered items]", "[html]", "[partial html]", "[registry]", "[viewstate]", "[xsl]","[renderingParameters]" });
         //db types			
-        SetupChecklist(cblDBTypes, new List<string>() { "[blobIDs]", "[data]", "[items]", "[itempaths]", "[paths]", "[standardValues]" });
+        SetupChecklist(cblDBTypes, new List<string>() { "[blobIDs]", "[data]", "[items]", "[itempaths]", "[paths]", "[standardValues]","[languageFallback]","[languageFallbackObsolete]","[isLanguageFallbackValid]", "[isLanguageFallbackValidObsolete]" });
         //db names
         SetupChecklist(cblDBNames, new List<string>() { "core", "filesystem", "master", "web" });
         //access result names 
         SetupChecklist(cblAccessResult, new List<string>() { "AccessResultCache" });
         //data provider names 
-        SetupChecklist(cblProviderResult, new List<string>() { "SqlDataProvider - Prefetch data(core)", "SqlDataProvider - Prefetch data(master)", "SqlDataProvider - Prefetch data(web)", "SqlDataProvider - Property data(core)", "SqlDataProvider - Property data(web)", "SqlDataProvider - Property data(master)" });
+        SetupChecklist(cblProviderResult, new List<string>() { "SqlDataProvider - Prefetch data(core)", "SqlDataProvider - Prefetch data(master)", "SqlDataProvider - Prefetch data(web)", "PropertyStore - Property data(core)","PropertyStore - Property data(master)", "PropertyStore - Property data(web)" });
         //misc names without random types
-        SetupChecklist(cblMiscNames, new List<string>() { "[FieldReaderCache]", "AccessResultCache", "clientData", "DeviceItemsCache", "IsUserInRoleCache", "ItemCloningRelations", "Theme_LanguageIcons", "Theme_Images", "LanguageProvider - Languages", "Log singles", "ProxyProvider", "ReportDataCache", "RequestProtection.HashCache", "rules", "SocialMessagesByContainerCache", "taxonomy.assets", "taxonomy.channels", "taxonomy.campaigngroups", "UserProfileCache", "WebUtil.QueryStringCache" });
+        var miscCaches = new List<string>();
+        foreach(var c in CacheManager.GetAllCaches())
+        {
+            if (c.Name.EndsWith("[filtered items]") || c.Name.EndsWith("[html]") || c.Name.EndsWith("[partial html]") || c.Name.EndsWith("[registry]") || c.Name.EndsWith("[viewstate]") || c.Name.EndsWith("[xsl]"))
+            {
+                continue;
+            }
+            if (c.Name.EndsWith("[blobIDs]") || c.Name.EndsWith("[data]") || c.Name.EndsWith("[items]") || c.Name.EndsWith("[itempaths]") || c.Name.EndsWith("[paths]") || c.Name.EndsWith("[standardValues]") || c.Name.EndsWith("[isLanguageFallbackValid]") || c.Name.EndsWith("[languageFallback]") || c.Name.EndsWith("[languageFallbackObsolete]") || c.Name.EndsWith("[isLanguageFallbackValidObsolete]") )
+            {
+                continue;
+            }
+            if (c.Name == "AccessResultCache")
+            {
+                continue;
+            }
+            if (c.Name.StartsWith("SqlDataProvider - Prefetch data") || c.Name.StartsWith("PropertyStore - Property data"))
+            {
+                continue;
+            }
+            miscCaches.Add(c.Name);
+        }
+        SetupChecklist(cblMiscNames, miscCaches);
 
         UpdateTotals();
     }
@@ -81,21 +102,21 @@
 
     protected void FetchSiteCacheProfile(object sender, EventArgs e) {
 
-        rptSiteCacheProfiles.DataSource = GetCachesByNames(GetSelectedSiteNames());
+        rptSiteCacheProfiles.DataSource = GetCachesByNames(GetSelectedSiteNames(),true);
         rptSiteCacheProfiles.DataBind();
     }
 
     protected void ClearSiteCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedSiteNames());
-        ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedSiteNames(),false);
+        //ClearCaches(list);
         rptSiteCaches.DataSource = list;
         rptSiteCaches.DataBind();
     }
 
     protected void FetchSiteCacheList(object sender, EventArgs e) {
 
-        rptSiteCaches.DataSource = GetCachesByNames(GetSelectedSiteNames());
+        rptSiteCaches.DataSource = GetCachesByNames(GetSelectedSiteNames(),false);
         rptSiteCaches.DataBind();
     }
 
@@ -105,21 +126,21 @@
 
     protected void FetchDBCacheProfile(object sender, EventArgs e) {
 
-        rptDBCacheProfiles.DataSource = GetCachesByNames(GetSelectedDBNames());
+        rptDBCacheProfiles.DataSource = GetCachesByNames(GetSelectedDBNames(),true);
         rptDBCacheProfiles.DataBind();
     }
 
     protected void ClearDBCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedDBNames());
-        ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedDBNames(),false);
+        //ClearCaches(list);
         rptDBCaches.DataSource = list;
         rptDBCaches.DataBind();
     }
 
     protected void FetchDBCacheList(object sender, EventArgs e) {
 
-        rptDBCaches.DataSource = GetCachesByNames(GetSelectedDBNames());
+        rptDBCaches.DataSource = GetCachesByNames(GetSelectedDBNames(),false);
         rptDBCaches.DataBind();
     }
 
@@ -129,25 +150,25 @@
 
     protected void FetchARCacheProfile(object sender, EventArgs e) {
 
-        rptARCacheProfiles.DataSource = GetACCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
+        rptARCacheProfiles.DataSource = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items),true);
         rptARCacheProfiles.DataBind();
     }
 
     protected void ClearARCacheProfile(object sender, EventArgs e) {
-		var ac = Sitecore.Caching.CacheManager.GetAccessResultCache();
-		ac.Clear();
-        rptARCaches.DataSource = GetACCachesByNames(GetSelectedItemValues(cblAccessResult.Items));;
+        var ac = Sitecore.Caching.CacheManager.GetAccessResultCache();
+        ac.Clear();
+        rptARCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items),true); ;
         rptARCaches.DataBind();
     }
 
     protected void FetchARCacheList(object sender, EventArgs e) {
 
-        rptARCaches.DataSource = GetACCachesByNames(GetSelectedItemValues(cblAccessResult.Items));
+        rptARCaches.DataSource =  GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items),false);
         rptARCaches.DataBind();
     }
 
-	protected List<Sitecore.Caching.Generics.ICache<AccessResultCacheKey>> GetACCachesByNames(List<string> names) {
-		var ac = Sitecore.Caching.CacheManager.GetAccessResultCache();
+    protected List<Sitecore.Caching.Generics.ICache<AccessResultCacheKey>> GetACCachesByNames(List<string> names) {
+        var ac = Sitecore.Caching.CacheManager.GetAccessResultCache();
         List<Sitecore.Caching.Generics.ICache<AccessResultCacheKey>> returnCaches = new List<Sitecore.Caching.Generics.ICache<AccessResultCacheKey>>();
         returnCaches.Add(ac.InnerCache);
         return returnCaches;
@@ -158,21 +179,21 @@
 
     protected void FetchProvCacheProfile(object sender, EventArgs e) {
 
-        rptProvCacheProfiles.DataSource = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items));
+        rptProvCacheProfiles.DataSource = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items),true);
         rptProvCacheProfiles.DataBind();
     }
 
     protected void ClearProvCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items));
-        ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items),false);
+        //ClearCaches(list);
         rptProvCaches.DataSource = list;
         rptProvCaches.DataBind();
     }
 
     protected void FetchProvCacheList(object sender, EventArgs e) {
 
-        rptProvCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items));
+        rptProvCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items),false);
         rptProvCaches.DataBind();
     }
 
@@ -182,21 +203,21 @@
 
     protected void FetchMiscCacheProfile(object sender, EventArgs e) {
 
-        rptMiscCacheProfiles.DataSource = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
+        rptMiscCacheProfiles.DataSource = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items),true);
         rptMiscCacheProfiles.DataBind();
     }
 
     protected void ClearMiscCacheProfile(object sender, EventArgs e) {
 
-        List<Sitecore.Caching.ICache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
-        ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items),false);
+        //ClearCaches(list);
         rptMiscCaches.DataSource = list;
         rptMiscCaches.DataBind();
     }
 
     protected void FetchMiscCacheList(object sender, EventArgs e) {
 
-        rptMiscCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items));
+        rptMiscCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items),false);
         rptMiscCaches.DataBind();
     }
 
@@ -211,140 +232,306 @@
         string query = txtGQuery.Text.ToLower();
         foreach (Sitecore.Caching.ICacheInfo c in allCaches) {
             try {
-				var cc = Sitecore.Caching.CacheManager.FindCacheByName<string>(c.Name) as ICache;
-                foreach (string s in cc.GetCacheKeys()) {
-                    if (s.ToLower().Contains(query)) {
-                        qr.Add(new ListItem(c.Name, s));
+                    List<string> cachename = new List<string>();
+                    cachename.Add(c.Name);
+                    var cclist = GetCachesByNames(cachename,true);
+                    var cc = cclist[0];
+                    foreach (string s in cc.Keys) {
+                        if (s.ToLower().Contains(query)) {
+                            qr.Add(new ListItem(c.Name, s));
+                        }
+                    }
+                } catch (Exception ex) { /*Sitecore.Caching.AccessResultCacheKey is private and blows up*/ }
+            }
+            rptGQuery.DataSource = qr;
+            rptGQuery.DataBind();
+            ltlResults.Text = qr.Count.ToString() + " Results";
+        }
+
+        protected void btnGQueryClear_Click(object sender, EventArgs e) {
+            List<ListItem> qr = new List<ListItem>();
+            var allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
+
+            string query = txtGQuery.Text.ToLower();
+            foreach (Sitecore.Caching.ICache c in allCaches) {
+                try {
+                    foreach (string s in c.GetCacheKeys()) {
+                        if (s.ToLower().Contains(query)) {
+                            c.Remove(s);
+                        }
+                    }
+                } catch (Exception ex) {
+                    //Sitecore.Caching.AccessResultCacheKey is private and blows up
+                }
+            }
+            rptGQuery.DataSource = qr;
+            rptGQuery.DataBind();
+            ltlResults.Text = qr.Count.ToString() + " Results";
+        }
+
+        protected void ClearAll_Click(object sender, EventArgs e) {
+            foreach (Sitecore.Caching.ICache cache in CacheManager.GetAllCaches()) {
+                cache.Clear();
+            }
+            UpdateTotals();
+        }
+
+        #endregion Global
+
+        #region Helpers
+
+        protected void SetupChecklist(CheckBoxList cbl, List<string> values) {
+            foreach (string s in values)
+                cbl.Items.Add(new ListItem(s, s));
+        }
+
+        protected void rptSCProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
+            Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
+            MyCache cacheItem = (MyCache)e.Item.DataItem;
+            if (rptBySite == null)
+                return;
+            rptBySite.DataSource = cacheItem.Keys;
+            rptBySite.DataBind();
+        }
+
+        protected void ClearCaches(List<Sitecore.Caching.ICache> caches) {
+            foreach (Sitecore.Caching.ICache c in caches) {
+                c.Clear();
+            }
+        }
+
+        protected List<string> GetSelectedSiteNames() {
+
+            List<string> returnNames = new List<string>();
+
+            //get selected types
+            List<string> siteTypesSelected = new List<string>();
+            foreach (ListItem li in cblSiteTypes.Items) {
+                if (li.Selected) {
+                    siteTypesSelected.Add(li.Value);
+                }
+            }
+
+            //get selected sites caches
+            List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
+            List<string> list = GetSelectedItemValues(cblSiteNames.Items);
+            list.AddRange(GetSelectedItemValues(cblSysSiteNames.Items));
+            foreach (string li in list) {
+                foreach (string s in siteTypesSelected) {
+                    returnNames.Add(li + s);
+                }
+            }
+
+            return returnNames;
+        }
+
+        protected List<string> GetSelectedDBNames() {
+
+            List<string> returnNames = new List<string>();
+
+            //get selected types
+            List<string> siteTypesSelected = new List<string>();
+            foreach (ListItem li in cblDBTypes.Items) {
+                if (li.Selected) {
+                    siteTypesSelected.Add(li.Value);
+                }
+            }
+
+            //get selected sites caches
+            List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
+            List<string> list = GetSelectedItemValues(cblDBNames.Items);
+            foreach (string li in list) {
+                foreach (string s in siteTypesSelected) {
+                    returnNames.Add(li + s);
+                }
+            }
+
+            return returnNames;
+        }
+
+        protected List<MyCache> GetCachesByNames(List<string> names, bool includeKeys) {
+
+            List<MyCache> returnCaches = new List<MyCache>();
+            foreach (string s in names) {
+                MyCache c = new MyCache();
+                if (s.EndsWith("[data]") || s.StartsWith("SqlDataProvider - Prefetch data"))
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Data.ID>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
+                        }
                     }
                 }
-            } catch (Exception ex) { /*Sitecore.Caching.AccessResultCacheKey is private and blows up*/ }
-        }
-        rptGQuery.DataSource = qr;
-        rptGQuery.DataBind();
-        ltlResults.Text = qr.Count.ToString() + " Results";
-    }
-
-    protected void btnGQueryClear_Click(object sender, EventArgs e) {
-        List<ListItem> qr = new List<ListItem>();
-        var allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
-
-        string query = txtGQuery.Text.ToLower();
-        foreach (Sitecore.Caching.ICache c in allCaches) {
-            try {
-                foreach (string s in c.GetCacheKeys()) {
-                    if (s.ToLower().Contains(query)) {
-                        c.Remove(s);
+                else if (s.EndsWith("[itempaths]"))
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.ItemPathCacheKey>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ItemId.ToString());
+                        }
                     }
                 }
-            } catch (Exception ex) {
-                //Sitecore.Caching.AccessResultCacheKey is private and blows up
+                else if (s.EndsWith("[languageFallback]"))
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.LanguageFallbackFieldValuesCacheKey>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
+                        }
+                    }
+                }
+                else if (s.EndsWith("[isLanguageFallbackValid]"))
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.IsLanguageFallbackValidCacheKey>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
+                        }
+                    }
+                }
+                else if (s == "AccessResultCache")
+                {
+                    var dc = Sitecore.Caching.CacheManager.GetAccessResultCache();
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.InnerCache.Size;
+                        c.MaxSize = dc.InnerCache.MaxSize;
+                        c.Count = dc.InnerCache.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.InnerCache.GetCacheKeys(), x => x.EntityId);
+                        }
+                    }
+                }
+                else if (s == "IsUserInRoleCache")
+                {
+                    var dc = Sitecore.Caching.CacheManager.GetIsInRoleCache();
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.InnerCache.Size;
+                        c.MaxSize = dc.InnerCache.MaxSize;
+                        c.Count = dc.InnerCache.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.InnerCache.GetCacheKeys(), x => x.ToString());
+                        }
+                    }
+                }
+                else if (s == "TransformedIdentities")
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Owin.Authentication.Caching.TransformedIdentitiesCacheKey>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
+                        }
+                    }
+                }
+                else if (s == "ExperienceAnalytics.DimensionItems" || s == "DeviceDictionaryCache" || s == "GeoIpDataDictionaryCache")
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<System.Guid>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
+                        }
+                    }
+                }
+                else if (s == "UserProfileCache")
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.UserProfile.UserProfileCacheKey>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
+                        }
+                    }
+                }
+                else if (s == "LAYOUT_DELTA_CACHE")
+                {
+                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Tuple<string, IEnumerable<string>>>(s);
+                    if (dc != null)
+                    {
+                        c.Name = dc.Name;
+                        c.Size = dc.Size;
+                        c.MaxSize = dc.MaxSize;
+                        c.Count = dc.Count;
+                        if (includeKeys)
+                        {
+                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => Server.HtmlEncode(x.Item1));
+                        }
+                    }
+                }
+                else if (s == "ItemCloningRelations")
+                {
+                    //not implemented due to access restriction 
+                    c.Name = "ItemCloningRelations - sorry no info not implemented due to access restriction";
+                    c.Size = 0;
+                    c.MaxSize = 0;
+                    c.Count = 0;
+				}
+				else
+				{
+                var sc = Sitecore.Caching.CacheManager.FindCacheByName<string>(s);
+                if (sc != null)
+                {
+                    c.Name = sc.Name;
+                    c.Size = sc.Size;
+                    c.MaxSize = sc.MaxSize;
+                    c.Count = sc.Count;
+                    if (includeKeys) c.Keys = sc.GetCacheKeys();
+                }
             }
-        }
-        rptGQuery.DataSource = qr;
-        rptGQuery.DataBind();
-        ltlResults.Text = qr.Count.ToString() + " Results";
-    }
 
-    protected void ClearAll_Click(object sender, EventArgs e) {
-        foreach (Sitecore.Caching.ICache cache in CacheManager.GetAllCaches()) {
-            cache.Clear();
-        }
-        UpdateTotals();
-    }
-
-    #endregion Global
-
-    #region Helpers
-
-    protected void SetupChecklist(CheckBoxList cbl, List<string> values) {
-        foreach (string s in values)
-            cbl.Items.Add(new ListItem(s, s));
-    }
-
-    protected void rptSCProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
-        Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
-        Sitecore.Caching.ICache cacheItem = (Sitecore.Caching.ICache)e.Item.DataItem;
-        if (rptBySite == null)
-            return;
-        rptBySite.DataSource = cacheItem.GetCacheKeys();
-        rptBySite.DataBind();
-    }
-
-	protected void rptSCACProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
-        Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
-        Sitecore.Caching.Generics.Cache<AccessResultCacheKey> cacheItem = (Sitecore.Caching.Generics.Cache<AccessResultCacheKey>)e.Item.DataItem;
-        if (rptBySite == null)
-            return;
-        rptBySite.DataSource = cacheItem.GetCacheKeys();
-        rptBySite.DataBind();
-    }
-
-    protected void ClearCaches(List<Sitecore.Caching.ICache> caches) {
-        foreach (Sitecore.Caching.ICache c in caches) {
-            c.Clear();
-        }
-    }
-
-    protected List<string> GetSelectedSiteNames() {
-
-        List<string> returnNames = new List<string>();
-
-        //get selected types
-        List<string> siteTypesSelected = new List<string>();
-        foreach (ListItem li in cblSiteTypes.Items) {
-            if (li.Selected) {
-                siteTypesSelected.Add(li.Value);
-            }
-        }
-
-        //get selected sites caches
-        List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
-        List<string> list = GetSelectedItemValues(cblSiteNames.Items);
-        list.AddRange(GetSelectedItemValues(cblSysSiteNames.Items));
-        foreach (string li in list) {
-            foreach (string s in siteTypesSelected) {
-                returnNames.Add(li + s);
-            }
-        }
-
-        return returnNames;
-    }
-
-    protected List<string> GetSelectedDBNames() {
-
-        List<string> returnNames = new List<string>();
-
-        //get selected types
-        List<string> siteTypesSelected = new List<string>();
-        foreach (ListItem li in cblDBTypes.Items) {
-            if (li.Selected) {
-                siteTypesSelected.Add(li.Value);
-            }
-        }
-
-        //get selected sites caches
-        List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
-        List<string> list = GetSelectedItemValues(cblDBNames.Items);
-        foreach (string li in list) {
-            foreach (string s in siteTypesSelected) {
-                returnNames.Add(li + s);
-            }
-        }
-
-        return returnNames;
-    }
-
-    protected List<Sitecore.Caching.ICache> GetCachesByNames(List<string> names) {
-
-        List<Sitecore.Caching.ICache> returnCaches = new List<Sitecore.Caching.ICache>();
-        foreach (string s in names) {	
-            Sitecore.Caching.ICache c = Sitecore.Caching.CacheManager.FindCacheByName<string>(s) as ICache;
-            if (c != null) {
+            if (c != null && !string.IsNullOrEmpty(c.Name)) {
                 returnCaches.Add(c);
             }
         }
         return returnCaches;
     }
+
 
     protected List<string> GetSelectedItemValues(ListItemCollection lic) {
         List<string> lil = new List<string>();
@@ -375,6 +562,14 @@
 
     protected string GetClass(int ItemIndex) {
         return ((ItemIndex % 2).Equals(0)) ? "even" : "odd";
+    }
+
+    public class MyCache {
+        public string Name { get; set; }
+        public long Count { get; set; }
+        public long Size { get; set; }
+        public long MaxSize { get; set; }
+        public string[] Keys { get; set; }
     }
 
     #endregion Helpers
@@ -671,10 +866,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-											<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
-											<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
-											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
-											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
+											<div class="Name RowValue"><%# ((MyCache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((MyCache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></div>
 											<div class="clear"></div>
 										</div>	
 									</ItemTemplate>
@@ -690,10 +885,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow">
-											<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
-												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
-												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
-												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
+											<h3><%# ((MyCache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((MyCache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></span>
 											</h4>
 											<div class="CacheItems">
 												<asp:Repeater ID="rptBySite" runat="server">
@@ -782,10 +977,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-											<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
-											<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
-											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
-											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
+											<div class="Name RowValue"><%# ((MyCache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((MyCache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></div>
 											<div class="clear"></div>
 										</div>
 									</ItemTemplate>
@@ -797,10 +992,10 @@
 									<HeaderTemplate><div class="Results"></HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow">
-											<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
-												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
-												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
-												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
+											<h3><%# ((MyCache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((MyCache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></span>
 											</h4>
 											<div class="CacheItems">
 												<asp:Repeater ID="rptBySite" runat="server">
@@ -878,10 +1073,10 @@
 							</HeaderTemplate>
 							<ItemTemplate>
 								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).MaxSize) %></div>
+									<div class="Name RowValue"><%# ((MyCache)Container.DataItem).Name %></div>
+									<div class="Count RowValue"><%# ((MyCache)Container.DataItem).Count %></div>
+									<div class="Size RowValue"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></div>
+									<div class="MaxSize RowValue"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></div>
 									<div class="clear"></div>
 								</div>	
 							</ItemTemplate>
@@ -889,14 +1084,14 @@
 						</asp:Repeater>
 						</div>
 						<div class="ProfileList ARProfileList">
-							<asp:Repeater ID="rptARCacheProfiles" OnItemDataBound="rptSCACProfiles_DataBound" runat="server">
+							<asp:Repeater ID="rptARCacheProfiles" OnItemDataBound="rptSCProfiles_DataBound" runat="server">
 								<HeaderTemplate><div class="Results"></HeaderTemplate>
 								<ItemTemplate>
 									<div class="FormRow">
-										<h3><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Name %> - 
-											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Count %></span>
-											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).Size) %></span>
-											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.Generics.ICache<AccessResultCacheKey>)Container.DataItem).MaxSize) %></span>
+										<h3><%# ((MyCache)Container.DataItem).Name %> - 
+											<span>Cache Entries:</span> <span class="title"><%# ((MyCache)Container.DataItem).Count %></span>
+											<span>Size:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></span>
+											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></span>
 										</h3>
 										<div class="CacheItems">
 											<asp:Repeater ID="rptBySite" runat="server">
@@ -908,7 +1103,7 @@
 												</HeaderTemplate>
 												<ItemTemplate>
 													<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-														<div class="CacheID"><%# ((AccessResultCacheKey)Container.DataItem).EntityId %></div>
+														<div class="CacheID"><%# Container.DataItem %></div>
 													</div>
 												</ItemTemplate>
 											</asp:Repeater>
@@ -973,10 +1168,10 @@
 							</HeaderTemplate>
 							<ItemTemplate>
 								<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-									<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
-									<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
-									<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
-									<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
+									<div class="Name RowValue"><%# ((MyCache)Container.DataItem).Name %></div>
+									<div class="Count RowValue"><%# ((MyCache)Container.DataItem).Count %></div>
+									<div class="Size RowValue"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></div>
+									<div class="MaxSize RowValue"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></div>
 									<div class="clear"></div>
 								</div>	
 							</ItemTemplate>
@@ -988,10 +1183,10 @@
 								<HeaderTemplate><div class="Results"></HeaderTemplate>
 								<ItemTemplate>
 									<div class="FormRow">
-										<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
-											<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
-											<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
-											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
+										<h3><%# ((MyCache)Container.DataItem).Name %> - 
+											<span>Cache Entries:</span> <span class="title"><%# ((MyCache)Container.DataItem).Count %></span>
+											<span>Size:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></span>
+											<span>MaxSize:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></span>
 										</h4>
 										<div class="CacheItems">
 											<asp:Repeater ID="rptBySite" runat="server">
@@ -1066,10 +1261,10 @@
 									</HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow <%# GetClass(Container.ItemIndex) %>">
-											<div class="Name RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %></div>
-											<div class="Count RowValue"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></div>
-											<div class="Size RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></div>
-											<div class="MaxSize RowValue"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></div>
+											<div class="Name RowValue"><%# ((MyCache)Container.DataItem).Name %></div>
+											<div class="Count RowValue"><%# ((MyCache)Container.DataItem).Count %></div>
+											<div class="Size RowValue"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></div>
+											<div class="MaxSize RowValue"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></div>
 											<div class="clear"></div>
 										</div>	
 									</ItemTemplate>
@@ -1081,10 +1276,10 @@
 									<HeaderTemplate><div class="Results"></HeaderTemplate>
 									<ItemTemplate>
 										<div class="FormRow">
-											<h3><%# ((Sitecore.Caching.ICache)Container.DataItem).Name %> - 
-												<span>Cache Entries:</span> <span class="title"><%# ((Sitecore.Caching.ICache)Container.DataItem).Count %></span>
-												<span>Size:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).Size) %></span>
-												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((Sitecore.Caching.ICache)Container.DataItem).MaxSize) %></span>
+											<h3><%# ((MyCache)Container.DataItem).Name %> - 
+												<span>Cache Entries:</span> <span class="title"><%# ((MyCache)Container.DataItem).Count %></span>
+												<span>Size:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).Size) %></span>
+												<span>MaxSize:</span> <span class="title"><%# GetValFromB(((MyCache)Container.DataItem).MaxSize) %></span>
 											</h4>
 											<div class="CacheItems">
 												<asp:Repeater ID="rptBySite" runat="server">
