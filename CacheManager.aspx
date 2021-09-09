@@ -108,8 +108,7 @@
 
     protected void ClearSiteCacheProfile(object sender, EventArgs e) {
 
-        List<MyCache> list = GetCachesByNames(GetSelectedSiteNames(),false);
-        //ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedSiteNames(),false,true);
         rptSiteCaches.DataSource = list;
         rptSiteCaches.DataBind();
     }
@@ -126,14 +125,13 @@
 
     protected void FetchDBCacheProfile(object sender, EventArgs e) {
 
-        rptDBCacheProfiles.DataSource = GetCachesByNames(GetSelectedDBNames(),true);
+        rptDBCacheProfiles.DataSource = GetCachesByNames(GetSelectedDBNames(), true) ;
         rptDBCacheProfiles.DataBind();
     }
 
     protected void ClearDBCacheProfile(object sender, EventArgs e) {
 
-        List<MyCache> list = GetCachesByNames(GetSelectedDBNames(),false);
-        //ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedDBNames(),false,true);
         rptDBCaches.DataSource = list;
         rptDBCaches.DataBind();
     }
@@ -155,14 +153,11 @@
     }
 
     protected void ClearARCacheProfile(object sender, EventArgs e) {
-        var ac = Sitecore.Caching.CacheManager.GetAccessResultCache();
-        ac.Clear();
-        rptARCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items),true); ;
+        rptARCaches.DataSource = GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items),true,true); ;
         rptARCaches.DataBind();
     }
 
     protected void FetchARCacheList(object sender, EventArgs e) {
-
         rptARCaches.DataSource =  GetCachesByNames(GetSelectedItemValues(cblAccessResult.Items),false);
         rptARCaches.DataBind();
     }
@@ -184,9 +179,7 @@
     }
 
     protected void ClearProvCacheProfile(object sender, EventArgs e) {
-
-        List<MyCache> list = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items),false);
-        //ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedItemValues(cblProviderResult.Items),false,true);
         rptProvCaches.DataSource = list;
         rptProvCaches.DataBind();
     }
@@ -209,8 +202,7 @@
 
     protected void ClearMiscCacheProfile(object sender, EventArgs e) {
 
-        List<MyCache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items),false);
-        //ClearCaches(list);
+        List<MyCache> list = GetCachesByNames(GetSelectedItemValues(cblMiscNames.Items),false,true);
         rptMiscCaches.DataSource = list;
         rptMiscCaches.DataBind();
     }
@@ -232,291 +224,342 @@
         string query = txtGQuery.Text.ToLower();
         foreach (Sitecore.Caching.ICacheInfo c in allCaches) {
             try {
-                    List<string> cachename = new List<string>();
-                    cachename.Add(c.Name);
-                    var cclist = GetCachesByNames(cachename,true);
-                    var cc = cclist[0];
-                    foreach (string s in cc.Keys) {
-                        if (s.ToLower().Contains(query)) {
-                            qr.Add(new ListItem(c.Name, s));
-                        }
+                List<string> cachename = new List<string>();
+                cachename.Add(c.Name);
+                var cclist = GetCachesByNames(cachename,true);
+                var cc = cclist[0];
+                foreach (string s in cc.Keys) {
+                    if (s.ToLower().Contains(query)) {
+                        qr.Add(new ListItem(c.Name, s));
                     }
-                } catch (Exception ex) { /*Sitecore.Caching.AccessResultCacheKey is private and blows up*/ }
-            }
-            rptGQuery.DataSource = qr;
-            rptGQuery.DataBind();
-            ltlResults.Text = qr.Count.ToString() + " Results";
-        }
-
-        protected void btnGQueryClear_Click(object sender, EventArgs e) {
-            List<ListItem> qr = new List<ListItem>();
-            var allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
-
-            string query = txtGQuery.Text.ToLower();
-            foreach (Sitecore.Caching.ICache c in allCaches) {
-                try {
-                    foreach (string s in c.GetCacheKeys()) {
-                        if (s.ToLower().Contains(query)) {
-                            c.Remove(s);
-                        }
-                    }
-                } catch (Exception ex) {
-                    //Sitecore.Caching.AccessResultCacheKey is private and blows up
                 }
-            }
-            rptGQuery.DataSource = qr;
-            rptGQuery.DataBind();
-            ltlResults.Text = qr.Count.ToString() + " Results";
+            } catch (Exception ex) { /*some key is private and blows up*/ }
         }
+        rptGQuery.DataSource = qr;
+        rptGQuery.DataBind();
+        ltlResults.Text = qr.Count.ToString() + " Results";
+    }
 
-        protected void ClearAll_Click(object sender, EventArgs e) {
-            foreach (Sitecore.Caching.ICache cache in CacheManager.GetAllCaches()) {
-                cache.Clear();
-            }
-            UpdateTotals();
-        }
+    protected void btnGQueryClear_Click(object sender, EventArgs e) {
+        List<ListItem> qr = new List<ListItem>();
+        var allCaches = CacheManager.GetAllCaches().OrderBy(a => a.Name);
 
-        #endregion Global
-
-        #region Helpers
-
-        protected void SetupChecklist(CheckBoxList cbl, List<string> values) {
-            foreach (string s in values)
-                cbl.Items.Add(new ListItem(s, s));
-        }
-
-        protected void rptSCProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
-            Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
-            MyCache cacheItem = (MyCache)e.Item.DataItem;
-            if (rptBySite == null)
-                return;
-            rptBySite.DataSource = cacheItem.Keys;
-            rptBySite.DataBind();
-        }
-
-        protected void ClearCaches(List<Sitecore.Caching.ICache> caches) {
-            foreach (Sitecore.Caching.ICache c in caches) {
-                c.Clear();
+        string query = txtGQuery.Text.ToLower();
+        foreach (Sitecore.Caching.ICacheInfo cInfo in allCaches) {
+            try {
+                ICache c = cInfo as ICache;
+                foreach (string s in c.GetCacheKeys()) {
+                    if (s.ToLower().Contains(query)) {
+                        c.Remove(s);
+                    }
+                }
+            } catch (Exception ex) {
+                //some Key is private and blows up also some caches are not string
             }
         }
+        rptGQuery.DataSource = qr;
+        rptGQuery.DataBind();
+        ltlResults.Text = qr.Count.ToString() + " Results";
+    }
 
-        protected List<string> GetSelectedSiteNames() {
+    protected void ClearAll_Click(object sender, EventArgs e) {
+        foreach (Sitecore.Caching.ICacheInfo cache in CacheManager.GetAllCaches()) {
+            cache.Clear();
+        }
+        UpdateTotals();
+    }
 
-            List<string> returnNames = new List<string>();
+    #endregion Global
 
-            //get selected types
-            List<string> siteTypesSelected = new List<string>();
-            foreach (ListItem li in cblSiteTypes.Items) {
-                if (li.Selected) {
-                    siteTypesSelected.Add(li.Value);
-                }
+    #region Helpers
+
+    protected void SetupChecklist(CheckBoxList cbl, List<string> values) {
+        foreach (string s in values)
+            cbl.Items.Add(new ListItem(s, s));
+    }
+
+    protected void rptSCProfiles_DataBound(object sender, RepeaterItemEventArgs e) {
+        Repeater rptBySite = (Repeater)e.Item.FindControl("rptBySite");
+        MyCache cacheItem = (MyCache)e.Item.DataItem;
+        if (rptBySite == null)
+            return;
+        rptBySite.DataSource = cacheItem.Keys;
+        rptBySite.DataBind();
+    }
+
+    protected List<string> GetSelectedSiteNames() {
+
+        List<string> returnNames = new List<string>();
+
+        //get selected types
+        List<string> siteTypesSelected = new List<string>();
+        foreach (ListItem li in cblSiteTypes.Items) {
+            if (li.Selected) {
+                siteTypesSelected.Add(li.Value);
             }
-
-            //get selected sites caches
-            List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
-            List<string> list = GetSelectedItemValues(cblSiteNames.Items);
-            list.AddRange(GetSelectedItemValues(cblSysSiteNames.Items));
-            foreach (string li in list) {
-                foreach (string s in siteTypesSelected) {
-                    returnNames.Add(li + s);
-                }
-            }
-
-            return returnNames;
         }
 
-        protected List<string> GetSelectedDBNames() {
-
-            List<string> returnNames = new List<string>();
-
-            //get selected types
-            List<string> siteTypesSelected = new List<string>();
-            foreach (ListItem li in cblDBTypes.Items) {
-                if (li.Selected) {
-                    siteTypesSelected.Add(li.Value);
-                }
+        //get selected sites caches
+        List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
+        List<string> list = GetSelectedItemValues(cblSiteNames.Items);
+        list.AddRange(GetSelectedItemValues(cblSysSiteNames.Items));
+        foreach (string li in list) {
+            foreach (string s in siteTypesSelected) {
+                returnNames.Add(li + s);
             }
-
-            //get selected sites caches
-            List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
-            List<string> list = GetSelectedItemValues(cblDBNames.Items);
-            foreach (string li in list) {
-                foreach (string s in siteTypesSelected) {
-                    returnNames.Add(li + s);
-                }
-            }
-
-            return returnNames;
         }
 
-        protected List<MyCache> GetCachesByNames(List<string> names, bool includeKeys) {
+        return returnNames;
+    }
 
-            List<MyCache> returnCaches = new List<MyCache>();
-            foreach (string s in names) {
-                MyCache c = new MyCache();
-                if (s.EndsWith("[data]") || s.StartsWith("SqlDataProvider - Prefetch data"))
+    protected List<string> GetSelectedDBNames() {
+
+        List<string> returnNames = new List<string>();
+
+        //get selected types
+        List<string> siteTypesSelected = new List<string>();
+        foreach (ListItem li in cblDBTypes.Items) {
+            if (li.Selected) {
+                siteTypesSelected.Add(li.Value);
+            }
+        }
+
+        //get selected sites caches
+        List<Sitecore.Caching.ICache> allCaches = new List<Sitecore.Caching.ICache>();
+        List<string> list = GetSelectedItemValues(cblDBNames.Items);
+        foreach (string li in list) {
+            foreach (string s in siteTypesSelected) {
+                returnNames.Add(li + s);
+            }
+        }
+
+        return returnNames;
+    }
+
+    protected List<MyCache> GetCachesByNames(List<string> names, bool includeKeys, bool clear=false) {
+
+        List<MyCache> returnCaches = new List<MyCache>();
+        foreach (string s in names) {
+            MyCache c = new MyCache();
+            if (s.EndsWith("[data]") || s.StartsWith("SqlDataProvider - Prefetch data"))
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Data.ID>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Data.ID>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
                     }
                 }
-                else if (s.EndsWith("[itempaths]"))
+            }
+            else if (s.EndsWith("[itempaths]"))
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.ItemPathCacheKey>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.ItemPathCacheKey>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ItemId.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ItemId.ToString());
                     }
                 }
-                else if (s.EndsWith("[languageFallback]"))
+            }
+            else if (s.EndsWith("[languageFallback]"))
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.LanguageFallbackFieldValuesCacheKey>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.LanguageFallbackFieldValuesCacheKey>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
                     }
                 }
-                else if (s.EndsWith("[isLanguageFallbackValid]"))
+            }
+            else if (s.EndsWith("[isLanguageFallbackValid]"))
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.IsLanguageFallbackValidCacheKey>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.IsLanguageFallbackValidCacheKey>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
                     }
                 }
-                else if (s == "AccessResultCache")
+            }
+            else if (s == "AccessResultCache")
+            {
+                var dc = Sitecore.Caching.CacheManager.GetAccessResultCache();
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.GetAccessResultCache();
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.InnerCache.Size;
-                        c.MaxSize = dc.InnerCache.MaxSize;
-                        c.Count = dc.InnerCache.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.InnerCache.GetCacheKeys(), x => x.EntityId);
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.InnerCache.Size;
+                    c.MaxSize = dc.InnerCache.MaxSize;
+                    c.Count = dc.InnerCache.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.InnerCache.GetCacheKeys(), x => x.EntityId);
                     }
                 }
-                else if (s == "IsUserInRoleCache")
+            }
+            else if (s == "IsUserInRoleCache")
+            {
+                var dc = Sitecore.Caching.CacheManager.GetIsInRoleCache();
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.GetIsInRoleCache();
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.InnerCache.Size;
-                        c.MaxSize = dc.InnerCache.MaxSize;
-                        c.Count = dc.InnerCache.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.InnerCache.GetCacheKeys(), x => x.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.InnerCache.Size;
+                    c.MaxSize = dc.InnerCache.MaxSize;
+                    c.Count = dc.InnerCache.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.InnerCache.GetCacheKeys(), x => x.ToString());
                     }
                 }
-                else if (s == "TransformedIdentities")
+            }
+            else if (s == "TransformedIdentities")
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Owin.Authentication.Caching.TransformedIdentitiesCacheKey>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Owin.Authentication.Caching.TransformedIdentitiesCacheKey>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
                     }
                 }
-                else if (s == "ExperienceAnalytics.DimensionItems" || s == "DeviceDictionaryCache" || s == "GeoIpDataDictionaryCache")
+            }
+            else if (s == "ExperienceAnalytics.DimensionItems" || s == "DeviceDictionaryCache" || s == "GeoIpDataDictionaryCache")
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<System.Guid>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<System.Guid>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
                     }
                 }
-                else if (s == "UserProfileCache")
+            }
+            else if (s == "UserProfileCache")
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.UserProfile.UserProfileCacheKey>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Sitecore.Caching.UserProfile.UserProfileCacheKey>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => x.ToString());
                     }
                 }
-                else if (s == "LAYOUT_DELTA_CACHE")
+            }
+            else if (s == "LAYOUT_DELTA_CACHE")
+            {
+                var dc = Sitecore.Caching.CacheManager.FindCacheByName<Tuple<string, IEnumerable<string>>>(s);
+                if (dc != null)
                 {
-                    var dc = Sitecore.Caching.CacheManager.FindCacheByName<Tuple<string, IEnumerable<string>>>(s);
-                    if (dc != null)
+                    if (clear)
                     {
-                        c.Name = dc.Name;
-                        c.Size = dc.Size;
-                        c.MaxSize = dc.MaxSize;
-                        c.Count = dc.Count;
-                        if (includeKeys)
-                        {
-                            c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => Server.HtmlEncode(x.Item1));
-                        }
+                        dc.Clear();
+                    }
+                    c.Name = dc.Name;
+                    c.Size = dc.Size;
+                    c.MaxSize = dc.MaxSize;
+                    c.Count = dc.Count;
+                    if (includeKeys)
+                    {
+                        c.Keys = Array.ConvertAll(dc.GetCacheKeys(), x => Server.HtmlEncode(x.Item1));
                     }
                 }
-                else if (s == "ItemCloningRelations")
+            }
+            else if (s == "ItemCloningRelations")
+            {
+                var scInfo = Sitecore.Caching.CacheManager.GetAllCaches().FirstOrDefault(x => x.Name == s);
+                if (scInfo != null)
                 {
-                    //not implemented due to access restriction 
-                    c.Name = "ItemCloningRelations - sorry no info not implemented due to access restriction";
-                    c.Size = 0;
-                    c.MaxSize = 0;
-                    c.Count = 0;
-				}
-				else
-				{
+                    if (clear)
+                    {
+                        scInfo.Clear();
+                    }
+                    c.Name = scInfo.Name;
+                    c.Size = scInfo.Size;
+                    c.MaxSize = scInfo.MaxSize;
+                    c.Count = scInfo.Count;
+                    if (includeKeys)
+                    {
+                        //not implemented due to access restriction 
+                        c.Keys = new string[1] { "not implemented due to access restriction"};
+                    }
+                }
+            }
+            else
+            {
                 var sc = Sitecore.Caching.CacheManager.FindCacheByName<string>(s);
                 if (sc != null)
                 {
+                    if (clear)
+                    {
+                        sc.Clear();
+                    }
                     c.Name = sc.Name;
                     c.Size = sc.Size;
                     c.MaxSize = sc.MaxSize;
