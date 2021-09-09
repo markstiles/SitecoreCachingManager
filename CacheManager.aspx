@@ -553,18 +553,41 @@
             }
             else
             {
-                var sc = Sitecore.Caching.CacheManager.FindCacheByName<string>(s);
-                if (sc != null)
+                try
                 {
-                    if (clear)
+                    var sc = Sitecore.Caching.CacheManager.FindCacheByName<string>(s);
+                    if (sc != null)
                     {
-                        sc.Clear();
+                        if (clear)
+                        {
+                            sc.Clear();
+                        }
+                        c.Name = sc.Name;
+                        c.Size = sc.Size;
+                        c.MaxSize = sc.MaxSize;
+                        c.Count = sc.Count;
+                        if (includeKeys) c.Keys = sc.GetCacheKeys();
                     }
-                    c.Name = sc.Name;
-                    c.Size = sc.Size;
-                    c.MaxSize = sc.MaxSize;
-                    c.Count = sc.Count;
-                    if (includeKeys) c.Keys = sc.GetCacheKeys();
+                } catch (Exception ex)
+                {
+                    //perhaps a unknow user cache or a bew one.
+                    var scInfo = Sitecore.Caching.CacheManager.GetAllCaches().FirstOrDefault(x => x.Name == s);
+                    if (scInfo != null)
+                    {
+                        if (clear)
+                        {
+                            scInfo.Clear();
+                        }
+                        c.Name = scInfo.Name;
+                        c.Size = scInfo.Size;
+                        c.MaxSize = scInfo.MaxSize;
+                        c.Count = scInfo.Count;
+                        if (includeKeys)
+                        {
+                            //not implemented due to unknow
+                            c.Keys = new string[1] { "not implemented unknown not string cache key"};
+                        }
+                    }
                 }
             }
 
