@@ -1,6 +1,6 @@
 # SitecoreCachingManager
 Console for easy Sitecore cache management
-For Sitecore 10+ (see history for older versions)
+For Sitecore 10+ (backwards compatible with Sitecore 9.x see history for older versions)
 
 Features
 - Search in the cache keys from All Sitecore caches.
