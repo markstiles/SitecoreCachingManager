@@ -570,7 +570,7 @@
                     }
                 } catch (Exception ex)
                 {
-                    //perhaps a unknow user cache or a bew one.
+                    //perhaps a unknow user cache or a new one.
                     var scInfo = Sitecore.Caching.CacheManager.GetAllCaches().FirstOrDefault(x => x.Name == s);
                     if (scInfo != null)
                     {
@@ -812,7 +812,7 @@
                                 </div>
                                 <div class="btnSpacer">.</div>
                                 <div class="btn">
-                                    <asp:Button ID="btnGQueryClear" rel=".GlobalRegion" CssClass="BtnClear" Text="Clear Search Results" runat="server" OnClick="btnGQueryClear_Click" />
+                                    <asp:Button ID="btnGQueryClear" rel=".GlobalRegion" CssClass="BtnClear" Text="Clear Search Results" runat="server" OnClick="btnGQueryClear_Click" Title="(currently works only for Caches with string type key)"/>
                                 </div>
                                 <div class="btnSpacer">.</div>
                                 <div class="btn">
